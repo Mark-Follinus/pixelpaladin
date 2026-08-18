@@ -19,8 +19,8 @@ public:
 
     GLFWwindow* GetWindow() { return m_window; }
     GLFWmonitor* GetMonitor() { return m_monitor; };
-    const i32 GetWidth() const { return m_width; }
-    const i32 GetHeight() const { return m_height; }
+    i32 GetWidth() const { return m_width; }
+    i32 GetHeight() const { return m_height; }
 
     void SetWidth(i32 width) { m_width = width; }
     void SetHeight(i32 height) { m_height = height; }
@@ -29,6 +29,9 @@ public:
 private:
 	Device();
 	~Device();
+
+    static void ErrorCallback(i32 error, const char* description);
+
 	void Update();
 
 private:

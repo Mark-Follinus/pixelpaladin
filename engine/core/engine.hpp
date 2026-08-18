@@ -5,6 +5,7 @@
 
 // Forward declarations
 class Device;
+class Input;
 class Renderer;
 
 class Engine 
@@ -22,6 +23,6 @@ private:
 private:
 
 	Device* m_device = nullptr;
+	Input* m_input = nullptr;
 	Renderer* m_renderer = nullptr;
-	// m_input
 };

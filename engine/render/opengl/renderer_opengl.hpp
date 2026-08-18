@@ -1,8 +1,5 @@
 #pragma once
 
-// GLM includes
-#include "glm/glm.hpp"
-
 class Renderer
 {
 public:
@@ -18,7 +15,5 @@ private:
 
 private:
 	friend class Engine;
-
-
 };
 

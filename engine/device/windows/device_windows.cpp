@@ -11,14 +11,6 @@
 #include <GLFW/glfw3.h>
 
 // ------------------------
-// Local Functions
-// ------------------------
-static void ErrorCallback(i32 error, const char* description) 
-{ 
-    fputs(description, stderr); 
-}
-
-// ------------------------
 // Public Methods
 // ------------------------
 
@@ -54,7 +46,7 @@ Device::Device()
         exit(EXIT_FAILURE);
     }
 
-    glfwSetErrorCallback(ErrorCallback);
+    glfwSetErrorCallback(Device::ErrorCallback);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -98,6 +90,14 @@ Device::Device()
 Device::~Device()
 {
 	glfwTerminate();
+}
+
+// ------------------------
+// Private Static Methods
+// ------------------------
+void Device::ErrorCallback(i32 error, const char* description)
+{
+    fputs(description, stderr);
 }
 
 // ------------------------ 

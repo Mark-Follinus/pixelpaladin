@@ -10,6 +10,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+// GLM Libraries
+#include "glm/glm.hpp"
+
 // ------------------------
 // Public Methods
 // ------------------------
