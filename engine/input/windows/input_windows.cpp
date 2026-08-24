@@ -74,75 +74,65 @@ glm::vec2 Input::GetRawMousePosition() const
 	return m_inputData.RawMousePosition;
 }
 
-f32 Input::GetGamepadAxis(GamepadAxis axis, i32 gamepadID) const
-{
-	if (!m_inputData.GamepadsConnected[gamepadID])
-	{
-		return 0.0;
-	} 
-	
-	const GLFWgamepadstate& gamePad = m_inputData.GamepadState[gamepadID];
-	const i32 a = static_cast<int>(axis);
-	assert(a >= 0 && a <= GLFW_GAMEPAD_AXIS_LAST);
-	return gamePad.axes[a];
-}
+//f32 Input::GetGamepadAxis(GamepadAxis axis) const
+//{
+//	if (!m_inputData.GamepadConnected)
+//	{
+//		return 0.0;
+//	} 
+//	
+//	const i32 a = static_cast<i32>(axis);
+//	assert(a >= 0 && a <= GLFW_GAMEPAD_AXIS_LAST);
+//	return m_inputData.GamepadState.axes[a];
+//}
 
-f32 Input::GetGamepadAxisPrevious(GamepadAxis axis, i32 gamepadID) const
-{
-	if (!m_inputData.GamepadsConnected[gamepadID])
-	{
-		return 0.0;
-	}
+//f32 Input::GetGamepadAxisPrevious(GamepadAxis axis) const
+//{
+//	if (!m_inputData.GamepadConnected)
+//	{
+//		return 0.0;
+//	}
+//
+//	const i32 a = static_cast<i32>(axis);
+//	assert(a >= 0 && a <= GLFW_GAMEPAD_AXIS_LAST);
+//	return m_inputData.GamepadStatePrevious.axes[a];
+//}
 
-	const GLFWgamepadstate& gamePad = m_inputData.GamepadStatePrevious[gamepadID];
-	const i32 a = static_cast<int>(axis);
-	assert(a >= 0 && a <= GLFW_GAMEPAD_AXIS_LAST);
-	return gamePad.axes[a];
-}
+//bool Input::GetGamepadButton(GamepadButton button) const
+//{
+//	if (!m_inputData.GamepadConnected)
+//	{
+//		return 0.0;
+//	}
+//
+//	const i32 b = static_cast<int>(button);
+//	assert(b >= 0 && b <= GLFW_GAMEPAD_BUTTON_LAST);
+//	return m_inputData.GamepadState.buttons[b] == GLFW_PRESS;
+//}
 
-bool Input::GetGamepadButton(GamepadButton button, i32 gamepadID) const
-{
-	if (!m_inputData.GamepadsConnected[gamepadID])
-	{
-		return 0.0;
-	}
+//bool Input::GetGamepadButtonDown(GamepadButton button) const
+//{
+//	if (!m_inputData.GamepadConnected)
+//	{
+//		return 0.0;
+//	}
+//
+//	const i32 b = static_cast<int>(button);
+//	assert(b >= 0 && b <= GLFW_GAMEPAD_BUTTON_LAST);
+//	return m_inputData.GamepadState.buttons[b] == GLFW_PRESS && m_inputData.GamepadStatePrevious.buttons[b] == GLFW_RELEASE;
+//}
 
-	const GLFWgamepadstate& gamePad = m_inputData.GamepadState[gamepadID];
-
-	const i32 b = static_cast<int>(button);
-	assert(b >= 0 && b <= GLFW_GAMEPAD_AXIS_LAST);
-	return gamePad.buttons[b];
-}
-
-bool Input::GetGamepadButtonDown(GamepadButton button, i32 gamepadID) const
-{
-	if (!m_inputData.GamepadsConnected[gamepadID])
-	{
-		return 0.0;
-	}
-
-	const GLFWgamepadstate& gamePad = m_inputData.GamepadState[gamepadID];
-	const GLFWgamepadstate& gamePadPrevious = m_inputData.GamepadStatePrevious[gamepadID];
-
-	const i32 b = static_cast<int>(button);
-	assert(b >= 0 && b <= GLFW_GAMEPAD_AXIS_LAST);
-	return gamePad.buttons[b] && !gamePadPrevious.buttons[b];
-}
-
-bool Input::GetGamepadButtonUp(GamepadButton button, i32 gamepadID) const
-{
-	if (!m_inputData.GamepadsConnected[gamepadID])
-	{
-		return 0.0;
-	}
-
-	const GLFWgamepadstate& gamePad = m_inputData.GamepadState[gamepadID];
-	const GLFWgamepadstate& gamePadPrevious = m_inputData.GamepadStatePrevious[gamepadID];
-
-	const i32 b = static_cast<int>(button);
-	assert(b >= 0 && b <= GLFW_GAMEPAD_AXIS_LAST);
-	return !gamePad.buttons[b] && gamePadPrevious.buttons[b];
-}
+//bool Input::GetGamepadButtonUp(GamepadButton button) const
+//{
+//	if (!m_inputData.GamepadConnected)
+//	{
+//		return 0.0;
+//	}
+//
+//	const i32 b = static_cast<int>(button);
+//	assert(b >= 0 && b <= GLFW_GAMEPAD_BUTTON_LAST);
+//	return !m_inputData.GamepadState.buttons[b] == GLFW_RELEASE && m_inputData.GamepadStatePrevious.buttons[b] == GLFW_PRESS;
+//}
 
 // ------------------------
 // Private Constructors
@@ -275,13 +265,13 @@ void Input::Update()
 	}
 
 	// Update gamepad states.
-	for (int i = 0; i < MAX_NUMBER_OF_GAMEPADS; ++i)
-	{
-		m_inputData.GamepadStatePrevious[i] = m_inputData.GamepadState[i];
-
-		if (glfwJoystickPresent(i) && glfwJoystickIsGamepad(i))
-		{
-			m_inputData.GamepadsConnected[i] = static_cast<bool>(glfwGetGamepadState(i, &m_inputData.GamepadState[i]));
-		}
-	}
+	//if (glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwJoystickIsGamepad(GLFW_JOYSTICK_1))
+	//{
+	//	m_inputData.GamepadStatePrevious = m_inputData.GamepadState;
+	//	m_inputData.GamepadConnected = static_cast<bool>(glfwGetGamepadState(GLFW_JOYSTICK_1, &m_inputData.GamepadState));
+	//}
+	//else 
+	//{
+	//	m_inputData.GamepadConnected = false;
+	//}
 }

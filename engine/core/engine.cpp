@@ -6,6 +6,7 @@
 
 // Includes for forward declarations
 #include "device/device.hpp"
+#include "network/network.hpp"
 #include "render/render.hpp"
 #include "input/input.hpp"
 
@@ -34,14 +35,15 @@ void Engine::Run()
 	{
 		const std::chrono::time_point currentTime = std::chrono::high_resolution_clock::now();
 		const f32 deltaTime = std::chrono::duration<f32>(currentTime - startTime).count();
-		std::printf("FPS: %f\n", deltaTime);
-
-		m_input->Update();
 
 		m_device->BeginFrame();
-			m_renderer->Draw();
-		m_device->EndFrame();
 
+
+		m_input->Update();
+		m_renderer->Draw();
+
+
+		m_device->EndFrame();
 		m_device->Update();
 
 		startTime = currentTime;
@@ -55,6 +57,10 @@ void Engine::Run()
 void Engine::Initialize()
 {
 	m_device = new Device();
+
+	Networking::NetworkConfig networkConfig = {};
+	m_networking = new Networking(Networking::NetworkRole::None, networkConfig);
+
 	m_input = new Input(m_device);
 	m_renderer = new Renderer();
 }

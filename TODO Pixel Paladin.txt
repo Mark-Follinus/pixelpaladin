@@ -1,0 +1,11 @@
+TODO: Pixel Paladin
+
+> TODO: Revisit gamepad input after networking prototype is functional.
+> TODO: Decide whether RawMousePosition → MousePosition is supposed to be a frame snapshot and actually copy it.
+> TODO: Decide whether the wheel should represent cumulative position or per-frame delta.
+
+------------------------------------------------------------------------------------------------------------------
+- [DONE] Initialize m_device.
+- [DONE] Bounds-check callback indices, especially GLFW_KEY_UNKNOWN == -1.
+- [DONE] Strongly consider moving InputData into Input and using GLFW's window user pointer instead of global state.
+- [DONE] Remove const from the returned glm::vec2.

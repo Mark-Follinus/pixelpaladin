@@ -15,7 +15,6 @@ class Device;
 // Compile time variables
 constexpr i32 NUMBER_OF_KEYS = 350;
 constexpr i32 NUMBER_OF_MOUSE_BUTTONS = 8;
-constexpr i32 MAX_NUMBER_OF_GAMEPADS = 4;
 constexpr f32 MOUSE_WHEEL_MINIMUM = -100.0f;
 constexpr f32 MOUSE_WHEEL_START = 0.0f;
 constexpr f32 MOUSE_WHEEL_MAXIMUM = 100.0f;
@@ -155,50 +154,44 @@ public:
         Middle = 2
     };
 
-    enum class GamepadAxis
-    {
-        // Represents the 2D axis of the gamepad sticks. With analog input values between -1.0 and +1.0, 0.0 when not pressed. 
-        StickLeftX = 0,
-        StickLeftY = 1,
-        StickRightX = 2,
-        StickRightY = 3,
+    //enum class GamepadAxis
+    //{
+    //    // Represents the 2D axis of the gamepad sticks. With analog input values between -1.0 and +1.0, 0.0 when not pressed. 
+    //    StickLeftX = 0,
+    //    StickLeftY = 1,
+    //    StickRightX = 2,
+    //    StickRightY = 3,
+    //    // Represents the triggers of the gamepad. With analog input values between 0.0 and 1.0, 0.0 when not pressed. 
+    //    TriggerLeft = 4,
+    //    TriggerRight = 5
+    //};
 
-        // Represents the triggers of the gamepad. With analog input values between 0.0 and 1.0, 0.0 when not pressed. 
-        TriggerLeft = 4,
-        TriggerRight = 5
-    };
-
-    enum class GamepadButton
-    {
-        // Represents the four colorful buttons on the gamepad.
-        South = 0,
-        East = 1,
-        West = 2,
-        North = 3,
-
-        // Represents the shoulder buttons (above the triggers) on a gamepad.
-        ShoulderLeft = 4,
-        ShoulderRight = 5,
-
-        // Represents the left of the two menu related buttons on a gamepad.
-        // This button has different names on different platforms, such as Share (Xbox) or - (Switch). The PS5 does not have such a button.
-        MenuLeft = 6,
-        // Represents the right of the two menu related buttons on a gamepad.
-        // This button has different names on different platforms, such as Menu (Xbox), Start (PS5), or + (Switch).
-        MenuRight = 7,
-
-        // Button 8 is not used, so that we have a 1-on-1 mapping with the GLFW enum.
-
-        // Represents the gamepad stick buttons. 
-        StickLeftPress = 9,
-        StickRightPress = 10,
-
-        // Represent the four arrow buttons on the gamepad.
-        DPadUp = 11,
-        DPadRight = 12,
-        DPadDown = 13,
-        DPadLeft = 14
-    };
+    //enum class GamepadButton
+    //{
+    //    // Represents the four colorful buttons on the gamepad.
+    //    South = 0,
+    //    East = 1,
+    //    West = 2,
+    //    North = 3,
+    //    // Represents the shoulder buttons (above the triggers) on a gamepad.
+    //    ShoulderLeft = 4,
+    //    ShoulderRight = 5,
+    //    // Represents the left of the two menu related buttons on a gamepad.
+    //    // This button has different names on different platforms, such as Share (Xbox) or - (Switch). The PS5 does not have such a button.
+    //    MenuLeft = 6,
+    //    // Represents the right of the two menu related buttons on a gamepad.
+    //    // This button has different names on different platforms, such as Menu (Xbox), Start (PS5), or + (Switch).
+    //    MenuRight = 7,
+    //    // Button 8 is not used, so that we have a 1-on-1 mapping with the GLFW enum.
+    //    // Represents the gamepad stick buttons. 
+    //    StickLeftPress = 9,
+    //    StickRightPress = 10,
+    //    // Represent the four arrow buttons on the gamepad.
+    //    DPadUp = 11,
+    //    DPadRight = 12,
+    //    DPadDown = 13,
+    //    DPadLeft = 14
+    //};
 
     enum class InputAction
     {
@@ -223,9 +216,9 @@ public:
 
         f32 MouseWheel = MOUSE_WHEEL_START;
 
-        bool GamepadsConnected[MAX_NUMBER_OF_GAMEPADS] = { false };
-        GLFWgamepadstate GamepadState[MAX_NUMBER_OF_GAMEPADS] = {};
-        GLFWgamepadstate GamepadStatePrevious[MAX_NUMBER_OF_GAMEPADS] = {};
+        //bool GamepadConnected = false;
+        //GLFWgamepadstate GamepadState = {};
+        //GLFWgamepadstate GamepadStatePrevious = {};
     };
 
     bool GetKeyboardKey(KeyboardKey key) const;     // Returns whether a key is being pressed in the current frame.
@@ -240,12 +233,12 @@ public:
     f32 GetMouseWheelMin() const;                      // Gets the minimum value the mouse wheel can return.
     glm::vec2 GetRawMousePosition() const;             // Returns screen position of the mouse, relative to the top-left corner of the screen.
 
-    f32 GetGamepadAxis(GamepadAxis axis, i32 gamepadID = 0) const;         // Returns the current floating-point value of a given gamepad axis.
-    f32 GetGamepadAxisPrevious(GamepadAxis axis, i32 gamepadID = 0) const; // Returns the previous floating-point value of a given gamepad axis. Use this together with GetGamepadAxis() to check if a value has crossed a certain threshold.
+    //f32 GetGamepadAxis(GamepadAxis axis) const;         // Returns the current floating-point value of a given gamepad axis.
+    //f32 GetGamepadAxisPrevious(GamepadAxis axis) const; // Returns the previous floating-point value of a given gamepad axis. Use this together with GetGamepadAxis() to check if a value has crossed a certain threshold.
 
-    bool GetGamepadButton(GamepadButton button, i32 gamepadID = 0) const;     // Returns whether a given gamepad button is being held down in the current frame.
-    bool GetGamepadButtonDown(GamepadButton button, i32 gamepadID = 0) const; // Returns whether a given gamepad button is being pressed in the current frame without having been pressed in the previous frame.
-    bool GetGamepadButtonUp(GamepadButton button, i32 gamepadID = 0) const;   // Returns whether a given gamepad button is no longer pressed in the current frame while in the previous frame it was.
+    //bool GetGamepadButton(GamepadButton button) const;     // Returns whether a given gamepad button is being held down in the current frame.
+    //bool GetGamepadButtonDown(GamepadButton button) const; // Returns whether a given gamepad button is being pressed in the current frame without having been pressed in the previous frame.
+    //bool GetGamepadButtonUp(GamepadButton button) const;   // Returns whether a given gamepad button is no longer pressed in the current frame while in the previous frame it was.
 
 private:
     Input(Device* device);

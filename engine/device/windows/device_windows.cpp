@@ -77,6 +77,7 @@ Device::Device()
     }
 
     glfwMakeContextCurrent(m_window);
+    glfwSwapInterval(1); // 1 makes it match the display refresh screen
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
