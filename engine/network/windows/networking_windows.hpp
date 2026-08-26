@@ -2,11 +2,17 @@
 
 // Standard library includes
 #include <vector>
+#include <array>
 
 // Windows library includes
 #include <WinSock2.h>
 
+// Engine includes
 #include "primitive_types.hpp"
+
+// Compile time variables
+constexpr size_t MAX_CLIENT_CONNECTIONS = 4;
+constexpr size_t RECEIVE_CHUNK_SIZE = 1024;
 
 class Networking
 {
@@ -19,20 +25,27 @@ public:
 		Host    // Player and server.
 	};
 
+	enum class NetworkConnectionState
+	{
+		Disconnected,
+		Connecting,
+		Connected
+	};
+
 	struct NetworkConfig
 	{
 		i16 ServerPort = 8080;
-
 		i32 WinSockVersionMajor = 2;
 		i32 WinSockVersionMinor = 2;
-
 		const char* IPAddress = "127.0.0.1";
+		const i32 MaximumConnections = MAX_CLIENT_CONNECTIONS;
+	};
 
-		const i32 MaximumConnections = 1;
-
-		// Address
-		// Port
-		// Other startup configuration
+	struct NetworkConnection
+	{
+		SOCKET Socket = INVALID_SOCKET;
+		std::vector<u8> RawReceiveBuffer = {};
+		NetworkConnectionState State = NetworkConnectionState::Disconnected;
 	};
 
 	NetworkRole GetRole() const { return m_role; }
@@ -49,14 +62,25 @@ private:
 	void Update();
 	void UpdateClient();
 	void UpdateServer();
+	void UpdateHost();
+
+	void AcceptServerConnection();
+	void AcceptClientConnections();
+
 
 private:
 	friend class Engine;
 
+	// General data members
 	NetworkConfig m_config = {};
 	NetworkRole m_role = NetworkRole::None;
+	WSADATA m_wsaData = {};
+	bool m_wsaInitialized = false;
 
-	SOCKET m_serverSocket = INVALID_SOCKET;   // If client, handle to connect to server.
-	SOCKET m_listenSocket = INVALID_SOCKET;   // If server, handle to listen for connections.
-	std::vector<SOCKET> m_clientSockets = {}; // If server, handles for clients.
+	// Client role data members
+	NetworkConnection m_clientToServerConnection;
+
+	// Server role data members
+	SOCKET m_serverListenSocket = INVALID_SOCKET;
+	std::array<NetworkConnection, MAX_CLIENT_CONNECTIONS> m_serverToClientConnections;
 };

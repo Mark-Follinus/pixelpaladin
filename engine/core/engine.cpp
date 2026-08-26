@@ -36,15 +36,17 @@ void Engine::Run()
 		const std::chrono::time_point currentTime = std::chrono::high_resolution_clock::now();
 		const f32 deltaTime = std::chrono::duration<f32>(currentTime - startTime).count();
 
-		m_device->BeginFrame();
+		/* NEW FRAME */ m_device->BeginFrame();
+		/* NEW FRAME */ m_device->Update();
 
+		/* INPUT */ m_input->Update();
+		/* INPUT */ m_networking->Update();
 
-		m_input->Update();
-		m_renderer->Draw();
+		/* GAME UPDATE */
 
+		/* DRAW */ m_renderer->Draw();
 
-		m_device->EndFrame();
-		m_device->Update();
+		/* END FRAME */ m_device->EndFrame();
 
 		startTime = currentTime;
 	}
@@ -59,9 +61,10 @@ void Engine::Initialize()
 	m_device = new Device();
 
 	Networking::NetworkConfig networkConfig = {};
-	m_networking = new Networking(Networking::NetworkRole::None, networkConfig);
+	m_networking = new Networking(Networking::NetworkRole::Client, networkConfig);
 
 	m_input = new Input(m_device);
+
 	m_renderer = new Renderer();
 }
 
@@ -72,6 +75,9 @@ void Engine::Shutdown()
 
 	delete m_input;
 	m_input = nullptr;
+
+	delete m_networking;
+	m_networking = nullptr;
 
 	delete m_device;
 	m_device = nullptr;
