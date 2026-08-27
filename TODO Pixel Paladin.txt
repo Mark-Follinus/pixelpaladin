@@ -3,6 +3,7 @@ TODO: Pixel Paladin
 > TODO: Revisit gamepad input after networking prototype is functional.
 > TODO: Decide whether RawMousePosition → MousePosition is supposed to be a frame snapshot and actually copy it.
 > TODO: Decide whether the wheel should represent cumulative position or per-frame delta.
+> TODO: Decide how the fuck I will handle disconnections.
 
 ----------------------------------------------------------------------------------------------------
 > [DONE] Make sockets non-blocking.

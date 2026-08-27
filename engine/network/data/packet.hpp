@@ -1,5 +1,6 @@
 #pragma once
 
+// Engine includes
 #include "primitive_types.hpp"
 
 struct PacketHeader
@@ -17,6 +18,5 @@ struct PacketHeader
 
 struct PacketBody
 {
-    u32 IntegerA = 0, IntegerB = 0;
-    f32 FloatA = 0.0f, FloatB = 0.0f;
+    f32 FloatA = 0.0f, FloatB = 0.0f, FloatC = 0.0f, FloatD = 0.0f;
 };

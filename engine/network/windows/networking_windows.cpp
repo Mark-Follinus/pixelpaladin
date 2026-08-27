@@ -9,9 +9,13 @@
 
 // Engine includes
 #include "../data/packet.hpp"
+#include "input/input.hpp"
 
 // Compile time variables
 constexpr u_long NON_BLOCKING_SOCKET_COMMAND = 1ul;
+constexpr size_t RECEIVE_CHUNK_SIZE_BYTES = 1024;
+constexpr size_t PACKET_SIZE = sizeof(PacketHeader) + sizeof(PacketBody);
+constexpr size_t MAX_PACKET_PAYLOAD_SIZE = 4096;
 
 // ------------------------
 // Public Methods
@@ -195,10 +199,6 @@ void Networking::InitializeAsClient()
     //{
     //    std::printf("Failed to send packet: %d\n", WSAGetLastError());
     //}
-
-    //closesocket(m_serverSocket);
-    //m_serverSocket = INVALID_SOCKET;
-    //WSACleanup();
 }
 
 void Networking::InitializeAsServer()
@@ -294,19 +294,6 @@ void Networking::InitializeAsServer()
         std::printf("Server: Listening for connections...\n");
         m_wsaInitialized = true;
     }
-    
-    // Step 5 - Accept client(s).
-    //std::printf(" -- Server: 5) Accepting Clients -- \n");
-    //SOCKET acceptSocket = accept(m_listenSocket, nullptr, nullptr);
-    //if (acceptSocket == INVALID_SOCKET)
-    //{
-    //    std::printf("Accepting client failed: %d\n", WSAGetLastError());
-    //    closesocket(m_listenSocket);
-    //    m_listenSocket = INVALID_SOCKET;
-    //    WSACleanup();
-    //    return;
-    //}
-    //m_clientSockets.push_back(acceptSocket);
 
     //constexpr size_t packetSize = sizeof(PacketHeader) + sizeof(PacketBody);
     //std::array<char, packetSize> buffer{};
@@ -331,23 +318,19 @@ void Networking::InitializeAsServer()
 
         case PacketHeader::PacketType::Disconnect: break;
         default: break;
-    }
-
-    closesocket(acceptSocket);
-    acceptSocket = INVALID_SOCKET;
-    WSACleanup();*/
+    }*/
 }
 
 void Networking::InitializeAsHost() { }
 
-void Networking::Update() 
+void Networking::Update(Input* input)
 { 
     switch (m_role)
     {
         case NetworkRole::None: { break; }
         case NetworkRole::Client:
         {
-            UpdateClient();
+            UpdateClient(input);
             break;
         }
         case NetworkRole::Server:
@@ -363,20 +346,27 @@ void Networking::Update()
     }
 }
 
-void Networking::UpdateClient() 
+void Networking::UpdateClient(Input* input)
 {
     switch (m_clientToServerConnection.State)
     {
         case NetworkConnectionState::Connecting:
         {
-            AcceptServerConnection();
+            CheckServerConnection();
             break;
         }
 
         case NetworkConnectionState::Connected:
         {
-            // SendLocalInput()
-            // ReceiveGameData()
+            if (input->GetKeyboardKeyUp(Input::KeyboardKey::Space))
+            {
+                ParseOutgoingData(m_clientToServerConnection);
+            }
+            SendData(m_clientToServerConnection);
+
+            ReceiveData(m_clientToServerConnection);
+            ParseIncomingData(m_clientToServerConnection);
+
             break;
         }
 
@@ -395,9 +385,8 @@ void Networking::UpdateServer()
             continue;
         }
 
-        //ParseInput
-        //ReceiveData(client);
-        //ParsePackets(client);
+        ReceiveData(client);
+        ParseIncomingData(client);
     }
 }
 
@@ -416,18 +405,16 @@ void Networking::UpdateHost()
     // ReceiveGameData()
 }
 
-void Networking::AcceptServerConnection()
+void Networking::CheckServerConnection()
 {
-    NetworkConnection& connection = m_clientToServerConnection;
-
     fd_set writeSet{};
     fd_set exceptionSet{};
 
     FD_ZERO(&writeSet);
     FD_ZERO(&exceptionSet);
 
-    FD_SET(connection.Socket, &writeSet);
-    FD_SET(connection.Socket, &exceptionSet);
+    FD_SET(m_clientToServerConnection.Socket, &writeSet);
+    FD_SET(m_clientToServerConnection.Socket, &exceptionSet);
 
     timeval timeout{};
         timeout.tv_sec = 0;  // Time out in seconds.
@@ -443,27 +430,27 @@ void Networking::AcceptServerConnection()
 
     if (result == 0)
     {
-        return; // Stil connecting.
+        return; // Still connecting.
     }
 
-    if (FD_ISSET(connection.Socket, &writeSet))
+    if (FD_ISSET(m_clientToServerConnection.Socket, &writeSet))
     {
         std::printf("Client: Connected to server!\n");
-        connection.State = NetworkConnectionState::Connected;
+        m_clientToServerConnection.State = NetworkConnectionState::Connected;
         return;
     }
 
-    if (FD_ISSET(connection.Socket, &exceptionSet))
+    if (FD_ISSET(m_clientToServerConnection.Socket, &exceptionSet))
     {
         i32 socketError = 0;
         i32 errorSize = sizeof(socketError);
-        getsockopt(connection.Socket, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&socketError), &errorSize);
+        getsockopt(m_clientToServerConnection.Socket, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&socketError), &errorSize);
 
         std::printf("Client: Connection failed: %i\n", socketError);
 
-        closesocket(connection.Socket);
-        connection.Socket = INVALID_SOCKET;
-        connection.State = NetworkConnectionState::Disconnected;
+        closesocket(m_clientToServerConnection.Socket);
+        m_clientToServerConnection.Socket = INVALID_SOCKET;
+        m_clientToServerConnection.State = NetworkConnectionState::Disconnected;
     }
 }
 
@@ -512,4 +499,136 @@ void Networking::AcceptClientConnections()
     std::printf("Server: New client connected!\n");
     potentialEmptyConnection->Socket = serverToClientSocket;
     potentialEmptyConnection->State = NetworkConnectionState::Connected;
+}
+
+void Networking::Disconnect(NetworkConnection& connection)
+{
+    if (connection.Socket != INVALID_SOCKET)
+    {
+        closesocket(connection.Socket);
+    }
+
+    connection.Socket = INVALID_SOCKET;
+    connection.State = NetworkConnectionState::Disconnected;
+    connection.RawReceiveBuffer.clear();
+    connection.RawSendBuffer.clear();
+}
+
+void Networking::ParseOutgoingData(NetworkConnection& connection)
+{
+    PacketHeader header = { PacketHeader::PacketType::Test, sizeof(PacketBody) };
+    PacketBody body = { static_cast<float>(rand()) / static_cast<float>(rand()),
+                        static_cast<float>(rand()) / static_cast<float>(rand()),
+                        static_cast<float>(rand()) / static_cast<float>(rand()),
+                        static_cast<float>(rand()) / static_cast<float>(rand())};
+
+    const size_t oldSize = connection.RawSendBuffer.size();
+    const size_t packetSize = sizeof(PacketHeader) + sizeof(PacketBody);
+
+    connection.RawSendBuffer.resize(oldSize + packetSize);
+
+    std::memcpy(connection.RawSendBuffer.data() + oldSize, &header, sizeof(PacketHeader));
+    std::memcpy(connection.RawSendBuffer.data() + oldSize + sizeof(PacketHeader), &body, sizeof(PacketBody));
+}
+
+void Networking::SendData(NetworkConnection& connection)
+{
+    if (connection.RawSendBuffer.empty())
+    {
+        return;
+    }
+
+    const i32 bytesSent = send(connection.Socket, reinterpret_cast<const char*>(connection.RawSendBuffer.data()), static_cast<i32>(connection.RawSendBuffer.size()), 0);
+    if (bytesSent == SOCKET_ERROR)
+    {
+        const i32 error = WSAGetLastError();
+        if (error == WSAEWOULDBLOCK)
+        {
+            return; // Socket cannot accept more data right now.
+        }
+
+        std::printf("ERROR: send() failed: %i\n", error);
+        // TODO: disconnect connection.
+        return;
+    }
+
+    connection.RawSendBuffer.erase(connection.RawSendBuffer.begin(), connection.RawSendBuffer.begin() + bytesSent);
+}
+
+void Networking::ReceiveData(NetworkConnection& connection)
+{    
+    std::array<u8, RECEIVE_CHUNK_SIZE_BYTES> receiveChunk{};
+
+    while (true) // Getting all the available data.
+    {
+        const i32 bytesReceived = recv(connection.Socket, reinterpret_cast<char*>(receiveChunk.data()), static_cast<i32>(receiveChunk.size()), 0);
+        if (bytesReceived == SOCKET_ERROR)
+        {
+            const i32 error = WSAGetLastError();
+            if (error == WSAEWOULDBLOCK)
+            {
+                return; // Nothing available right now. Totally normal.
+            }
+
+            std::printf("ERROR: recv() failed: %i\n", error);
+            //Disconnect(connection);
+            return;
+        }
+
+        if (bytesReceived == 0)
+        {
+            //Disconnect(connection); // Peer performed an orderly disconnect.
+            return; 
+        }
+
+        connection.RawReceiveBuffer.insert(connection.RawReceiveBuffer.end(), receiveChunk.begin(), receiveChunk.begin() + bytesReceived);
+    }
+}
+
+void Networking::ParseIncomingData(NetworkConnection& connection)
+{
+    const size_t packetHeaderSize = sizeof(PacketHeader);
+
+    while (connection.RawReceiveBuffer.size() >= packetHeaderSize)
+    {
+        PacketHeader header{};
+        std::memcpy(&header, connection.RawReceiveBuffer.data(), packetHeaderSize);
+
+        if (header.payloadSize > MAX_PACKET_PAYLOAD_SIZE)
+        {
+            std::printf("ERROR: Packet payload too large.\n"); // Probably disconnect this peer because the stream can no longer be trusted.
+            //Disconnect(connection);
+            return;
+        }
+
+        const size_t packetSize = packetHeaderSize + header.payloadSize;
+        if (connection.RawReceiveBuffer.size() < packetSize)
+        {
+            return; // Only part of the packet has arrived.
+        }
+
+        switch (header.type)
+        {
+            case PacketHeader::PacketType::Test:
+            {
+                if (header.payloadSize != sizeof(PacketBody)) // Malformed packet. Packet will be discarded below.
+                {
+                    std::printf("ERROR: Invalid Test packet payload size.\n");
+                    break; 
+                }
+
+                PacketBody body{};
+                std::memcpy(&body, connection.RawReceiveBuffer.data() + packetHeaderSize, sizeof(PacketBody));
+
+                // Transform this shit here into something else lol.
+                std::printf("%f %f %f %f\n", body.FloatA, body.FloatB, body.FloatC, body.FloatD);
+
+                break;
+            }
+            case PacketHeader::PacketType::Disconnect: { break; }
+            default: break;
+        }
+
+        connection.RawReceiveBuffer.erase(connection.RawReceiveBuffer.begin(), connection.RawReceiveBuffer.begin() + packetSize);
+    }
 }

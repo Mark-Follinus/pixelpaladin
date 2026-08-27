@@ -12,7 +12,9 @@
 
 // Compile time variables
 constexpr size_t MAX_CLIENT_CONNECTIONS = 4;
-constexpr size_t RECEIVE_CHUNK_SIZE = 1024;
+
+// Forward Declarations
+class Input;
 
 class Networking
 {
@@ -44,7 +46,8 @@ public:
 	struct NetworkConnection
 	{
 		SOCKET Socket = INVALID_SOCKET;
-		std::vector<u8> RawReceiveBuffer = {};
+		std::vector<c8> RawReceiveBuffer = {};
+		std::vector<c8> RawSendBuffer = {};
 		NetworkConnectionState State = NetworkConnectionState::Disconnected;
 	};
 
@@ -59,14 +62,22 @@ private:
 	void InitializeAsServer();
 	void InitializeAsHost();
 
-	void Update();
-	void UpdateClient();
+	void Update(Input* input);
+	void UpdateClient(Input* input);
 	void UpdateServer();
 	void UpdateHost();
 
-	void AcceptServerConnection();
+	void CheckServerConnection();
 	void AcceptClientConnections();
 
+	void Disconnect(NetworkConnection& connection);
+
+	void ParseOutgoingData(NetworkConnection& connection);
+	void SendData(NetworkConnection& connection);
+
+
+	void ReceiveData(NetworkConnection& connection);
+	void ParseIncomingData(NetworkConnection& connection);
 
 private:
 	friend class Engine;
