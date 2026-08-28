@@ -516,7 +516,7 @@ void Networking::Disconnect(NetworkConnection& connection)
 
 void Networking::ParseOutgoingData(NetworkConnection& connection)
 {
-    PacketHeader header = { PacketHeader::PacketType::Test, sizeof(PacketBody) };
+    PacketHeader header = { PacketHeader::PacketType::ClientInput, sizeof(PacketBody) };
     PacketBody body = { static_cast<float>(rand()) / static_cast<float>(rand()),
                         static_cast<float>(rand()) / static_cast<float>(rand()),
                         static_cast<float>(rand()) / static_cast<float>(rand()),
@@ -609,7 +609,7 @@ void Networking::ParseIncomingData(NetworkConnection& connection)
 
         switch (header.type)
         {
-            case PacketHeader::PacketType::Test:
+            case PacketHeader::PacketType::ClientInput:
             {
                 if (header.payloadSize != sizeof(PacketBody)) // Malformed packet. Packet will be discarded below.
                 {

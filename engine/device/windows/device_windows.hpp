@@ -4,7 +4,7 @@
 #include <string>
 
 // Engine includes
-#include "../engine/primitive_types.hpp"
+#include "../engine/utilities/primitive_types.hpp"
 
 // Forward Declarations
 struct GLFWwindow;

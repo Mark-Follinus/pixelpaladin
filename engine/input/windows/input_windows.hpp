@@ -7,7 +7,7 @@
 #include "glm/glm.hpp"
 
 // Engine includes
-#include "primitive_types.hpp"
+#include "../engine/utilities/primitive_types.hpp"
 
 // Forward declarations
 class Device;

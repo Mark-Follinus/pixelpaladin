@@ -6,12 +6,10 @@ TODO: Pixel Paladin
 > TODO: Decide how the fuck I will handle disconnections.
 
 ----------------------------------------------------------------------------------------------------
-> [DONE] Make sockets non-blocking.
-> Move accept() / recv() / ongoing send() work into Update().
-> Append raw received TCP bytes into a persistent per-connection receive buffer.
-> Parse all complete packets currently available from that raw receive buffer.
-> Push parsed packets into an incoming packet write-buffer.
-> Swap the incoming read/write packet buffers once per game tick.
-> Have the game thread/process stage consume the read-buffer.
-> Handle multiple clients and disconnects cleanly.
-----------------------------------------------------------------------------------------------------
+
+1. Convert physical input into a PlayerCommand. The game and server should never need to know what the Space key is.
+2. Serialize and deserialize that command. Add a packet type such as PlayerCommand. Execute it on the server.
+3. Initially, “gameplay” can just increment a position or print that an attack happened.
+4. Return one authoritative state update. Even something tiny like the resulting player position completes the loop.
+5. Then refactor client/server responsibilities. Once the slice works, the natural boundaries will be much more obvious. A likely eventual structure is ClientEndpoint and ServerEndpoint, composed by Networking; a host can own both.
+6. Add separate build targets last. Make a headless server executable once there is actually client-only code worth excluding. Prefer separate CMake targets linked against shared game/network code, rather than scattering #ifdef SERVER_BUILD throughout the engine.

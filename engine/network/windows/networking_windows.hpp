@@ -8,7 +8,7 @@
 #include <WinSock2.h>
 
 // Engine includes
-#include "primitive_types.hpp"
+#include "../engine/utilities/primitive_types.hpp"
 
 // Compile time variables
 constexpr size_t MAX_CLIENT_CONNECTIONS = 4;
@@ -74,7 +74,6 @@ private:
 
 	void ParseOutgoingData(NetworkConnection& connection);
 	void SendData(NetworkConnection& connection);
-
 
 	void ReceiveData(NetworkConnection& connection);
 	void ParseIncomingData(NetworkConnection& connection);
