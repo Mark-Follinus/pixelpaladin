@@ -1,6 +1,6 @@
 #include "core/engine.hpp"
 
-i32 main()
+int main()
 {
 	Engine engine;
 	engine.Run();

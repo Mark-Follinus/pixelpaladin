@@ -14,57 +14,57 @@
 
 bool Input::GetKeyboardKey(KeyboardKey key) const
 {
-	const i32 k = static_cast<i32>(key);
+	const int k = static_cast<int>(key);
 	assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
 	return m_inputData.KeysDown[k];
 }
 
 bool Input::GetKeyboardKeyDown(KeyboardKey key) const
 {
-	const i32 k = static_cast<i32>(key);
+	const int k = static_cast<int>(key);
 	assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
 	return m_inputData.KeysDown[k] && !m_inputData.KeysDownPrevious[k];
 }
 
 bool Input::GetKeyboardKeyUp(KeyboardKey key) const
 {
-	const i32 k = static_cast<i32>(key);
+	const int k = static_cast<int>(key);
 	assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
 	return !m_inputData.KeysDown[k] && m_inputData.KeysDownPrevious[k];
 }
 
 bool Input::GetMouseButton(MouseButton button) const
 {
-	const i32 b = static_cast<i32>(button);
+	const int b = static_cast<int>(button);
 	assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
 	return m_inputData.MouseButtonsDown[b];
 }
 
 bool Input::GetMouseButtonDown(MouseButton button) const
 {
-	const i32 b = static_cast<i32>(button);
+	const int b = static_cast<int>(button);
 	assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
 	return m_inputData.MouseButtonsDown[b] && !m_inputData.MouseButtonsDownPrevious[b];
 }
 
 bool Input::GetMouseButtonUp(MouseButton button) const
 {
-	const i32 b = static_cast<i32>(button);
+	const int b = static_cast<int>(button);
 	assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
 	return !m_inputData.MouseButtonsDown[b] && m_inputData.MouseButtonsDownPrevious[b];
 }
 
-f32 Input::GetMouseWheel() const
+float Input::GetMouseWheel() const
 {
 	return m_inputData.MouseWheel;
 }
 
-f32 Input::GetMouseWheelMax() const
+float Input::GetMouseWheelMax() const
 {
 	return MOUSE_WHEEL_MAXIMUM;
 }
 
-f32 Input::GetMouseWheelMin() const
+float Input::GetMouseWheelMin() const
 {
 	return MOUSE_WHEEL_MINIMUM;
 }
@@ -74,26 +74,26 @@ glm::vec2 Input::GetRawMousePosition() const
 	return m_inputData.RawMousePosition;
 }
 
-//f32 Input::GetGamepadAxis(GamepadAxis axis) const
+//float Input::GetGamepadAxis(GamepadAxis axis) const
 //{
 //	if (!m_inputData.GamepadConnected)
 //	{
 //		return 0.0;
 //	} 
 //	
-//	const i32 a = static_cast<i32>(axis);
+//	const int a = static_cast<int>(axis);
 //	assert(a >= 0 && a <= GLFW_GAMEPAD_AXIS_LAST);
 //	return m_inputData.GamepadState.axes[a];
 //}
 
-//f32 Input::GetGamepadAxisPrevious(GamepadAxis axis) const
+//float Input::GetGamepadAxisPrevious(GamepadAxis axis) const
 //{
 //	if (!m_inputData.GamepadConnected)
 //	{
 //		return 0.0;
 //	}
 //
-//	const i32 a = static_cast<i32>(axis);
+//	const int a = static_cast<int>(axis);
 //	assert(a >= 0 && a <= GLFW_GAMEPAD_AXIS_LAST);
 //	return m_inputData.GamepadStatePrevious.axes[a];
 //}
@@ -105,7 +105,7 @@ glm::vec2 Input::GetRawMousePosition() const
 //		return 0.0;
 //	}
 //
-//	const i32 b = static_cast<int>(button);
+//	const int b = static_cast<int>(button);
 //	assert(b >= 0 && b <= GLFW_GAMEPAD_BUTTON_LAST);
 //	return m_inputData.GamepadState.buttons[b] == GLFW_PRESS;
 //}
@@ -117,7 +117,7 @@ glm::vec2 Input::GetRawMousePosition() const
 //		return 0.0;
 //	}
 //
-//	const i32 b = static_cast<int>(button);
+//	const int b = static_cast<int>(button);
 //	assert(b >= 0 && b <= GLFW_GAMEPAD_BUTTON_LAST);
 //	return m_inputData.GamepadState.buttons[b] == GLFW_PRESS && m_inputData.GamepadStatePrevious.buttons[b] == GLFW_RELEASE;
 //}
@@ -129,7 +129,7 @@ glm::vec2 Input::GetRawMousePosition() const
 //		return 0.0;
 //	}
 //
-//	const i32 b = static_cast<int>(button);
+//	const int b = static_cast<int>(button);
 //	assert(b >= 0 && b <= GLFW_GAMEPAD_BUTTON_LAST);
 //	return !m_inputData.GamepadState.buttons[b] == GLFW_RELEASE && m_inputData.GamepadStatePrevious.buttons[b] == GLFW_PRESS;
 //}
@@ -165,7 +165,7 @@ Input::~Input()
 // Private Static Methods
 // ------------------------ 
 
-void Input::KeyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods)
+void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	Input* input = static_cast<Input*>(glfwGetWindowUserPointer(window));
 	if (!input) 
@@ -182,7 +182,7 @@ void Input::KeyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i
 	}
 }
 
-void Input::MouseButtonCallback(GLFWwindow* window, i32 button, i32 action, i32 mods)
+void Input::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
 	Input* input = static_cast<Input*>(glfwGetWindowUserPointer(window));
 	if (!input)
@@ -199,7 +199,7 @@ void Input::MouseButtonCallback(GLFWwindow* window, i32 button, i32 action, i32 
 	}
 }
 
-void Input::MouseWheelCallback(GLFWwindow* window, f64 xoffset, f64 yoffset)
+void Input::MouseWheelCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	Input* input = static_cast<Input*>(glfwGetWindowUserPointer(window));
 	if (!input)
@@ -207,11 +207,11 @@ void Input::MouseWheelCallback(GLFWwindow* window, f64 xoffset, f64 yoffset)
 		return;
 	}
 
-	input->m_inputData.MouseWheel += static_cast<f32>(yoffset);
+	input->m_inputData.MouseWheel += static_cast<float>(yoffset);
 	input->m_inputData.MouseWheel = std::clamp(input->m_inputData.MouseWheel, MOUSE_WHEEL_MINIMUM, MOUSE_WHEEL_MAXIMUM);
 }
 
-void Input::MousePositionCallback(GLFWwindow* window, f64 xposition, f64 yposition)
+void Input::MousePositionCallback(GLFWwindow* window, double xposition, double yposition)
 {
 	Input* input = static_cast<Input*>(glfwGetWindowUserPointer(window));
 	if (!input)
@@ -219,8 +219,8 @@ void Input::MousePositionCallback(GLFWwindow* window, f64 xposition, f64 ypositi
 		return;
 	}
 
-	input->m_inputData.RawMousePosition.x = static_cast<f32>(xposition);
-	input->m_inputData.RawMousePosition.y = static_cast<f32>(yposition);
+	input->m_inputData.RawMousePosition.x = static_cast<float>(xposition);
+	input->m_inputData.RawMousePosition.y = static_cast<float>(yposition);
 }
 
 // ------------------------
@@ -230,7 +230,7 @@ void Input::MousePositionCallback(GLFWwindow* window, f64 xposition, f64 ypositi
 void Input::Update()
 {
 	// Update keyboard key states.
-	for (i32 i = 0; i < NUMBER_OF_KEYS; ++i)
+	for (int i = 0; i < NUMBER_OF_KEYS; ++i)
 	{
 		m_inputData.KeysDownPrevious[i] = m_inputData.KeysDown[i];
 
@@ -247,7 +247,7 @@ void Input::Update()
 	}
 
 	// Update mouse button states.
-	for (i32 i = 0; i < NUMBER_OF_MOUSE_BUTTONS; ++i)
+	for (int i = 0; i < NUMBER_OF_MOUSE_BUTTONS; ++i)
 	{
 		m_inputData.MouseButtonsDownPrevious[i] = m_inputData.MouseButtonsDown[i];
 

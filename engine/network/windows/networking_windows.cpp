@@ -105,7 +105,7 @@ void Networking::InitializeAsClient()
 {
     // Step 1 - Initializing WSA.
     WORD wVersionRequested = MAKEWORD(m_config.WinSockVersionMajor, m_config.WinSockVersionMinor);
-    const i32 wsaError = WSAStartup(wVersionRequested, &m_wsaData);
+    const int wsaError = WSAStartup(wVersionRequested, &m_wsaData);
     if (wsaError != 0)
     {
         std::printf("Client: WSA startup failed: %i\n", wsaError);
@@ -119,7 +119,7 @@ void Networking::InitializeAsClient()
     // Step 2 - Configuring client socket.
     if ((m_clientToServerConnection.Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Client: Socket configuration failed: %i\n", error);
 
         WSACleanup();
@@ -130,7 +130,7 @@ void Networking::InitializeAsClient()
     u_long nonBlocking = NON_BLOCKING_SOCKET_COMMAND;
     if (ioctlsocket(m_clientToServerConnection.Socket, FIONBIO, &nonBlocking) == SOCKET_ERROR)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Client: Failed to make socket non-blocking: %i\n", error);
 
         closesocket(m_clientToServerConnection.Socket);
@@ -151,7 +151,7 @@ void Networking::InitializeAsClient()
 
     if (InetPtonA(AF_INET, m_config.IPAddress, &serverAddress.sin_addr) != 1)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Client: InetPton failed: %i\n", error);
 
         closesocket(m_clientToServerConnection.Socket);
@@ -162,7 +162,7 @@ void Networking::InitializeAsClient()
     }
     else if (connect(m_clientToServerConnection.Socket, reinterpret_cast<const sockaddr*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         if (error == WSAEWOULDBLOCK) // If in the process of connecting.
         {
             // Do NOT close the socket. UpdateClient() will check whether it finishes.
@@ -194,7 +194,7 @@ void Networking::InitializeAsClient()
     //std::array<char, packetSize> packet {};
     //std::memcpy(packet.data(), &header, sizeof(PacketHeader));
     //std::memcpy(packet.data() + sizeof(PacketHeader), &body, sizeof(PacketBody));
-    //i32 bytesSent = send(m_serverSocket, packet.data(), static_cast<i32>(packet.size()), 0);
+    //int bytesSent = send(m_serverSocket, packet.data(), static_cast<int>(packet.size()), 0);
     //if (bytesSent == SOCKET_ERROR)
     //{
     //    std::printf("Failed to send packet: %d\n", WSAGetLastError());
@@ -205,7 +205,7 @@ void Networking::InitializeAsServer()
 {
     // Step 1 - Initializing WSA.
     WORD wVersionRequested = MAKEWORD(m_config.WinSockVersionMajor, m_config.WinSockVersionMinor);
-    const i32 wsaError = WSAStartup(wVersionRequested, &m_wsaData);
+    const int wsaError = WSAStartup(wVersionRequested, &m_wsaData);
     if (wsaError != 0)
     {
         std::printf("Server: WSA startup failed: %i\n", wsaError);
@@ -219,7 +219,7 @@ void Networking::InitializeAsServer()
     // Step 2 - Configuring server socket.
     if ((m_serverListenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Server: Socket configuration failed: %i\n", error);
 
         WSACleanup();
@@ -230,7 +230,7 @@ void Networking::InitializeAsServer()
     u_long nonBlocking = NON_BLOCKING_SOCKET_COMMAND;
     if (ioctlsocket(m_serverListenSocket, FIONBIO, &nonBlocking) == SOCKET_ERROR)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Server: Failed to make socket non-blocking: %i\n", error);
 
         closesocket(m_serverListenSocket);
@@ -251,7 +251,7 @@ void Networking::InitializeAsServer()
 
     if (InetPtonA(AF_INET, m_config.IPAddress, &serverAddress.sin_addr) != 1)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Server: InetPton failed: %i\n", error);
 
         closesocket(m_serverListenSocket);
@@ -262,7 +262,7 @@ void Networking::InitializeAsServer()
     }
     else if (bind(m_serverListenSocket, reinterpret_cast<const sockaddr*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Server: Socket binding failed: %i\n", error);
 
         closesocket(m_serverListenSocket);
@@ -279,7 +279,7 @@ void Networking::InitializeAsServer()
     // Step 4 - Listen for clients.
     if (listen(m_serverListenSocket, m_config.MaximumConnections) == SOCKET_ERROR)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Server: Failed to switch to listening mode: %i\n", error);
 
         closesocket(m_serverListenSocket);
@@ -297,7 +297,7 @@ void Networking::InitializeAsServer()
 
     //constexpr size_t packetSize = sizeof(PacketHeader) + sizeof(PacketBody);
     //std::array<char, packetSize> buffer{};
-    //const i32 bytesReceived = recv(acceptSocket, buffer.data(), static_cast<i32>(buffer.size()), 0);
+    //const int bytesReceived = recv(acceptSocket, buffer.data(), static_cast<int>(buffer.size()), 0);
     //if (bytesReceived == SOCKET_ERROR)
     //{
     //    std::printf("recv failed: %d\n", WSAGetLastError());
@@ -420,10 +420,10 @@ void Networking::CheckServerConnection()
         timeout.tv_sec = 0;  // Time out in seconds.
         timeout.tv_usec = 0; // Time out in microseconds.
 
-    const i32 result = select(0, nullptr, &writeSet, &exceptionSet, &timeout);
+    const int result = select(0, nullptr, &writeSet, &exceptionSet, &timeout);
     if (result == SOCKET_ERROR)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Client: select failed: %i\n", error);
         return;
     }
@@ -442,8 +442,8 @@ void Networking::CheckServerConnection()
 
     if (FD_ISSET(m_clientToServerConnection.Socket, &exceptionSet))
     {
-        i32 socketError = 0;
-        i32 errorSize = sizeof(socketError);
+        int socketError = 0;
+        int errorSize = sizeof(socketError);
         getsockopt(m_clientToServerConnection.Socket, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&socketError), &errorSize);
 
         std::printf("Client: Connection failed: %i\n", socketError);
@@ -475,7 +475,7 @@ void Networking::AcceptClientConnections()
     SOCKET serverToClientSocket = accept(m_serverListenSocket, nullptr, nullptr);
     if (serverToClientSocket == INVALID_SOCKET)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         if (error == WSAEWOULDBLOCK)
         {
             return;
@@ -488,7 +488,7 @@ void Networking::AcceptClientConnections()
     u_long nonBlocking = NON_BLOCKING_SOCKET_COMMAND;
     if (ioctlsocket(serverToClientSocket, FIONBIO, &nonBlocking) == SOCKET_ERROR)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         std::printf("Server: Failed to make new runtime socket non-blocking: %i\n", error);
 
         closesocket(serverToClientSocket);
@@ -538,10 +538,10 @@ void Networking::SendData(NetworkConnection& connection)
         return;
     }
 
-    const i32 bytesSent = send(connection.Socket, reinterpret_cast<const char*>(connection.RawSendBuffer.data()), static_cast<i32>(connection.RawSendBuffer.size()), 0);
+    const int bytesSent = send(connection.Socket, reinterpret_cast<const char*>(connection.RawSendBuffer.data()), static_cast<int>(connection.RawSendBuffer.size()), 0);
     if (bytesSent == SOCKET_ERROR)
     {
-        const i32 error = WSAGetLastError();
+        const int error = WSAGetLastError();
         if (error == WSAEWOULDBLOCK)
         {
             return; // Socket cannot accept more data right now.
@@ -557,14 +557,14 @@ void Networking::SendData(NetworkConnection& connection)
 
 void Networking::ReceiveData(NetworkConnection& connection)
 {    
-    std::array<u8, RECEIVE_CHUNK_SIZE_BYTES> receiveChunk{};
+    std::array<unsigned char, RECEIVE_CHUNK_SIZE_BYTES> receiveChunk{};
 
     while (true) // Getting all the available data.
     {
-        const i32 bytesReceived = recv(connection.Socket, reinterpret_cast<char*>(receiveChunk.data()), static_cast<i32>(receiveChunk.size()), 0);
+        const int bytesReceived = recv(connection.Socket, reinterpret_cast<char*>(receiveChunk.data()), static_cast<int>(receiveChunk.size()), 0);
         if (bytesReceived == SOCKET_ERROR)
         {
-            const i32 error = WSAGetLastError();
+            const int error = WSAGetLastError();
             if (error == WSAEWOULDBLOCK)
             {
                 return; // Nothing available right now. Totally normal.

@@ -96,7 +96,7 @@ Device::~Device()
 // ------------------------
 // Private Static Methods
 // ------------------------
-void Device::ErrorCallback(i32 error, const char* description)
+void Device::ErrorCallback(int error, const char* description)
 {
     fputs(description, stderr);
 }

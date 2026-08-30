@@ -1,8 +1,5 @@
 #pragma once
 
-// Engine Includes
-#include "../utilities/primitive_types.hpp"
-
 // Forward declarations
 class Device;
 class Networking;

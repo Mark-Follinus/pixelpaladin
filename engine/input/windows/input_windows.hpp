@@ -6,18 +6,15 @@
 // GLM includes
 #include "glm/glm.hpp"
 
-// Engine includes
-#include "../engine/utilities/primitive_types.hpp"
-
 // Forward declarations
 class Device;
 
 // Compile time variables
-constexpr i32 NUMBER_OF_KEYS = 350;
-constexpr i32 NUMBER_OF_MOUSE_BUTTONS = 8;
-constexpr f32 MOUSE_WHEEL_MINIMUM = -100.0f;
-constexpr f32 MOUSE_WHEEL_START = 0.0f;
-constexpr f32 MOUSE_WHEEL_MAXIMUM = 100.0f;
+constexpr int NUMBER_OF_KEYS = 350;
+constexpr int NUMBER_OF_MOUSE_BUTTONS = 8;
+constexpr float MOUSE_WHEEL_MINIMUM = -100.0f;
+constexpr float MOUSE_WHEEL_START = 0.0f;
+constexpr float MOUSE_WHEEL_MAXIMUM = 100.0f;
 
 class Input
 {
@@ -214,7 +211,7 @@ public:
         glm::vec2 MousePositionDelta = {};
         glm::vec2 MousePosition = {};
 
-        f32 MouseWheel = MOUSE_WHEEL_START;
+        float MouseWheel = MOUSE_WHEEL_START;
 
         //bool GamepadConnected = false;
         //GLFWgamepadstate GamepadState = {};
@@ -228,13 +225,13 @@ public:
     bool GetMouseButton(MouseButton button) const;     // Returns whether a mouse button is being pressed in the current frame.
     bool GetMouseButtonDown(MouseButton button) const; // Returns whether a mouse button is being pressed in the current frame without having been pressed in the previous frame.
     bool GetMouseButtonUp(MouseButton button) const;   // Returns whether a mouse button is no longer pressed in the current frame while in the previous frame it was.
-    f32 GetMouseWheel() const;                         // Gets the mouse wheel, relative to the initial value when starting the game.
-    f32 GetMouseWheelMax() const;                      // Gets the maximum value the mouse wheel can return.
-    f32 GetMouseWheelMin() const;                      // Gets the minimum value the mouse wheel can return.
+    float GetMouseWheel() const;                         // Gets the mouse wheel, relative to the initial value when starting the game.
+    float GetMouseWheelMax() const;                      // Gets the maximum value the mouse wheel can return.
+    float GetMouseWheelMin() const;                      // Gets the minimum value the mouse wheel can return.
     glm::vec2 GetRawMousePosition() const;             // Returns screen position of the mouse, relative to the top-left corner of the screen.
 
-    //f32 GetGamepadAxis(GamepadAxis axis) const;         // Returns the current floating-point value of a given gamepad axis.
-    //f32 GetGamepadAxisPrevious(GamepadAxis axis) const; // Returns the previous floating-point value of a given gamepad axis. Use this together with GetGamepadAxis() to check if a value has crossed a certain threshold.
+    //float GetGamepadAxis(GamepadAxis axis) const;         // Returns the current floating-point value of a given gamepad axis.
+    //float GetGamepadAxisPrevious(GamepadAxis axis) const; // Returns the previous floating-point value of a given gamepad axis. Use this together with GetGamepadAxis() to check if a value has crossed a certain threshold.
 
     //bool GetGamepadButton(GamepadButton button) const;     // Returns whether a given gamepad button is being held down in the current frame.
     //bool GetGamepadButtonDown(GamepadButton button) const; // Returns whether a given gamepad button is being pressed in the current frame without having been pressed in the previous frame.
@@ -244,10 +241,10 @@ private:
     Input(Device* device);
     ~Input();
 
-    static void KeyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods);
-    static void MouseButtonCallback(GLFWwindow* window, i32 button, i32 action, i32 mods);
-    static void MouseWheelCallback(GLFWwindow* window, f64 xoffset, f64 yoffset);
-    static void MousePositionCallback(GLFWwindow* window, f64 xposition, f64 yposition);
+    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+    static void MouseWheelCallback(GLFWwindow* window, double xoffset, double yoffset);
+    static void MousePositionCallback(GLFWwindow* window, double xposition, double yposition);
 
     void Update();
 

@@ -34,7 +34,7 @@ void Engine::Run()
 	while (!m_device->ShouldClose())
 	{
 		const std::chrono::time_point currentTime = std::chrono::high_resolution_clock::now();
-		const f32 deltaTime = std::chrono::duration<f32>(currentTime - startTime).count();
+		const float deltaTime = std::chrono::duration<float>(currentTime - startTime).count();
 
 		/* START FRAME */ m_device->BeginFrame();
 		/* START FRAME */ m_device->Update();

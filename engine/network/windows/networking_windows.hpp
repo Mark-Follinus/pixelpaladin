@@ -7,9 +7,6 @@
 // Windows library includes
 #include <WinSock2.h>
 
-// Engine includes
-#include "../engine/utilities/primitive_types.hpp"
-
 // Compile time variables
 constexpr size_t MAX_CLIENT_CONNECTIONS = 4;
 
@@ -36,18 +33,18 @@ public:
 
 	struct NetworkConfig
 	{
-		i16 ServerPort = 8080;
-		i32 WinSockVersionMajor = 2;
-		i32 WinSockVersionMinor = 2;
+		short ServerPort = 8080;
+		int WinSockVersionMajor = 2;
+		int WinSockVersionMinor = 2;
 		const char* IPAddress = "127.0.0.1";
-		const i32 MaximumConnections = MAX_CLIENT_CONNECTIONS;
+		const int MaximumConnections = MAX_CLIENT_CONNECTIONS;
 	};
 
 	struct NetworkConnection
 	{
 		SOCKET Socket = INVALID_SOCKET;
-		std::vector<c8> RawReceiveBuffer = {};
-		std::vector<c8> RawSendBuffer = {};
+		std::vector<char> RawReceiveBuffer = {};
+		std::vector<char> RawSendBuffer = {};
 		NetworkConnectionState State = NetworkConnectionState::Disconnected;
 	};
 
