@@ -1,19 +1,21 @@
 #pragma once
 
-class Renderer
+namespace pldn 
 {
-public:
-	void Draw();
+	class Renderer
+	{
+	public:
+		void Draw();
 
-private:
-	Renderer();
-	~Renderer();
+	private:
+		Renderer();
+		~Renderer();
 
-	void RenderStart();
-	void RenderQuad();
-	void RenderEnd();
+		void RenderStart();
+		void RenderQuad();
+		void RenderEnd();
 
-private:
-	friend class Engine;
-};
-
+	private:
+		friend class Engine;
+	};
+}

@@ -13,38 +13,42 @@
 // GLM Libraries
 #include "glm/glm.hpp"
 
+namespace pldn
+{
+
 // ------------------------
 // Public Methods
 // ------------------------
 
-void Renderer::Draw()
-{
-	RenderStart();
-	RenderQuad();
-	RenderEnd();
-}
+	void Renderer::Draw()
+	{
+		RenderStart();
+		RenderQuad();
+		RenderEnd();
+	}
 
 // ------------------------
 // Private Methods
 // ------------------------
 
-void Renderer::RenderStart()
-{
-	glClearColor(0.471f, 0.741f, 0.596f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-}
+	void Renderer::RenderStart()
+	{
+		glClearColor(0.471f, 0.741f, 0.596f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
-void Renderer::RenderQuad()
-{
+	void Renderer::RenderQuad()
+	{
 
-}
+	}
 
-void Renderer::RenderEnd()
-{
-	
-}
+	void Renderer::RenderEnd()
+	{
 
+	}
 
-Renderer::Renderer() {}
+	Renderer::Renderer() {}
 
-Renderer::~Renderer() {}
+	Renderer::~Renderer() {}
+
+} // namespace pldne

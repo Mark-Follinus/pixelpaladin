@@ -10,75 +10,80 @@
 #include "render/render.hpp"
 #include "input/input.hpp"
 
+namespace pldn
+{
+
 // ------------------------
 // Public Constructors
 // ------------------------
 
-Engine::Engine() {}
+	Engine::Engine() {}
 
-Engine::~Engine()
-{
-	Shutdown();
-}
+	Engine::~Engine()
+	{
+		Shutdown();
+	}
 
 // ------------------------
 // Public Methods
 // ------------------------
 
-void Engine::Run()
-{
-	Initialize();
-
-	std::chrono::time_point startTime = std::chrono::high_resolution_clock::now();
-
-	while (!m_device->ShouldClose())
+	void Engine::Run()
 	{
-		const std::chrono::time_point currentTime = std::chrono::high_resolution_clock::now();
-		const float deltaTime = std::chrono::duration<float>(currentTime - startTime).count();
+		Initialize();
 
-		/* START FRAME */ m_device->BeginFrame();
-		/* START FRAME */ m_device->Update();
+		std::chrono::time_point startTime = std::chrono::high_resolution_clock::now();
 
-		/* INPUT */ m_input->Update();
-		/* INPUT */ m_networking->Update(m_input);
+		while (!m_device->ShouldClose())
+		{
+			const std::chrono::time_point currentTime = std::chrono::high_resolution_clock::now();
+			const float deltaTime = std::chrono::duration<float>(currentTime - startTime).count();
 
-		/* GAME UPDATE */
+			/* START FRAME */ m_device->BeginFrame();
+			/* START FRAME */ m_device->Update();
 
-		/* DRAW */ m_renderer->Draw();
+			/* INPUT */ m_input->Update();
+			/* INPUT */ m_networking->Update(m_input);
 
-		/* END FRAME */ m_device->EndFrame();
+			/* GAME UPDATE */
 
-		startTime = currentTime;
+			/* DRAW */ m_renderer->Draw();
+
+			/* END FRAME */ m_device->EndFrame();
+
+			startTime = currentTime;
+		}
 	}
-}
 
 // ------------------------
 // Private Methods
 // ------------------------
 
-void Engine::Initialize()
-{
-	m_device = new Device();
+	void Engine::Initialize()
+	{
+		m_device = new Device();
 
-	Networking::NetworkConfig networkConfig = {};
-	m_networking = new Networking(Networking::NetworkRole::Server, networkConfig);
+		Networking::NetworkConfig networkConfig = {};
+		m_networking = new Networking(Networking::NetworkRole::Server, networkConfig);
 
-	m_input = new Input(m_device);
+		m_input = new Input(m_device);
 
-	m_renderer = new Renderer();
-}
+		m_renderer = new Renderer();
+	}
 
-void Engine::Shutdown()
-{
-	delete m_renderer;
-	m_renderer = nullptr;
+	void Engine::Shutdown()
+	{
+		delete m_renderer;
+		m_renderer = nullptr;
 
-	delete m_input;
-	m_input = nullptr;
+		delete m_input;
+		m_input = nullptr;
 
-	delete m_networking;
-	m_networking = nullptr;
+		delete m_networking;
+		m_networking = nullptr;
 
-	delete m_device;
-	m_device = nullptr;
-}
+		delete m_device;
+		m_device = nullptr;
+	}
+
+} // namespace pldn

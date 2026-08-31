@@ -1,27 +1,35 @@
 #pragma once
 
 // Forward declarations
-class Device;
-class Networking;
-class Input;
-class Renderer;
+//class Device;
+//class Networking;
+//class Input;
+//class Renderer;
 
-class Engine 
+namespace pldn
 {
-public:
-	Engine();
-	~Engine();
+	class Device;
+	class Networking;
+	class Input;
+	class Renderer;
 
-	void Run();
+	class Engine
+	{
+	public:
+		Engine();
+		~Engine();
 
-private:
-	void Initialize();
-	void Shutdown();
+		void Run();
 
-private:
+	private:
+		void Initialize();
+		void Shutdown();
 
-	Device* m_device = nullptr;
-	Networking* m_networking = nullptr;
-	Input* m_input = nullptr;
-	Renderer* m_renderer = nullptr;
-};
+	private:
+		Device* m_device = nullptr;
+		Networking* m_networking = nullptr;
+		Input* m_input = nullptr;
+		Renderer * m_renderer = nullptr;
+	};
+
+} // namespace pldn
