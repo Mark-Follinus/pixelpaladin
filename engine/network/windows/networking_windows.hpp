@@ -14,6 +14,7 @@ namespace pldn
 {
 
 	// Forward Declarations
+	struct InputCommand;
 	class Input;
 
 	class Networking
@@ -62,8 +63,8 @@ namespace pldn
 		void InitializeAsServer();
 		void InitializeAsHost();
 
-		void Update(Input* input);
-		void UpdateClient(Input* input);
+		void Update(const InputCommand& command);
+		void UpdateClient(const InputCommand& command);
 		void UpdateServer();
 		void UpdateHost();
 
@@ -73,6 +74,7 @@ namespace pldn
 		void Disconnect(NetworkConnection& connection);
 
 		void ParseOutgoingData(NetworkConnection& connection);
+		void ParseOutgoingData(NetworkConnection& connection, const InputCommand& command);
 		void SendData(NetworkConnection& connection);
 
 		void ReceiveData(NetworkConnection& connection);

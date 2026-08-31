@@ -1,11 +1,5 @@
 #pragma once
 
-// Forward declarations
-//class Device;
-//class Networking;
-//class Input;
-//class Renderer;
-
 namespace pldn
 {
 	class Device;

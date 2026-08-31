@@ -8,6 +8,9 @@
 #include "device/device.hpp"
 #include "network/network.hpp"
 #include "render/render.hpp"
+
+// Input includes
+#include "input/data/input_command.hpp"
 #include "input/input.hpp"
 
 namespace pldn
@@ -39,17 +42,21 @@ namespace pldn
 			const std::chrono::time_point currentTime = std::chrono::high_resolution_clock::now();
 			const float deltaTime = std::chrono::duration<float>(currentTime - startTime).count();
 
-			/* START FRAME */ m_device->BeginFrame();
-			/* START FRAME */ m_device->Update();
+			/* START FRAME */
+			m_device->BeginFrame();
+			m_device->Update();
 
-			/* INPUT */ m_input->Update();
-			/* INPUT */ m_networking->Update(m_input);
+			/* INPUT */
+			const InputCommand& inputRaw = m_input->Update();
+			m_networking->Update(inputRaw);
 
 			/* GAME UPDATE */
 
-			/* DRAW */ m_renderer->Draw();
+			/* DRAW */
+			m_renderer->Draw();
 
-			/* END FRAME */ m_device->EndFrame();
+			/* END FRAME */
+			m_device->EndFrame();
 
 			startTime = currentTime;
 		}

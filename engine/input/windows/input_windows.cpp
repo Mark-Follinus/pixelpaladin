@@ -4,6 +4,7 @@
 #include <algorithm>
 
 // Engine includes
+#include "../data/input_command.hpp"
 #include "device/device.hpp"
 
 namespace pldn
@@ -17,47 +18,47 @@ namespace pldn
 	{
 		const int k = static_cast<int>(key);
 		assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
-		return m_inputData.KeysDown[k];
+		return m_inputRawData.KeysDown[k];
 	}
 
 	bool Input::GetKeyboardKeyDown(KeyboardKey key) const
 	{
 		const int k = static_cast<int>(key);
 		assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
-		return m_inputData.KeysDown[k] && !m_inputData.KeysDownPrevious[k];
+		return m_inputRawData.KeysDown[k] && !m_inputRawData.KeysDownPrevious[k];
 	}
 
 	bool Input::GetKeyboardKeyUp(KeyboardKey key) const
 	{
 		const int k = static_cast<int>(key);
 		assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
-		return !m_inputData.KeysDown[k] && m_inputData.KeysDownPrevious[k];
+		return !m_inputRawData.KeysDown[k] && m_inputRawData.KeysDownPrevious[k];
 	}
 
 	bool Input::GetMouseButton(MouseButton button) const
 	{
 		const int b = static_cast<int>(button);
 		assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
-		return m_inputData.MouseButtonsDown[b];
+		return m_inputRawData.MouseButtonsDown[b];
 	}
 
 	bool Input::GetMouseButtonDown(MouseButton button) const
 	{
 		const int b = static_cast<int>(button);
 		assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
-		return m_inputData.MouseButtonsDown[b] && !m_inputData.MouseButtonsDownPrevious[b];
+		return m_inputRawData.MouseButtonsDown[b] && !m_inputRawData.MouseButtonsDownPrevious[b];
 	}
 
 	bool Input::GetMouseButtonUp(MouseButton button) const
 	{
 		const int b = static_cast<int>(button);
 		assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
-		return !m_inputData.MouseButtonsDown[b] && m_inputData.MouseButtonsDownPrevious[b];
+		return !m_inputRawData.MouseButtonsDown[b] && m_inputRawData.MouseButtonsDownPrevious[b];
 	}
 
 	float Input::GetMouseWheel() const
 	{
-		return m_inputData.MouseWheel;
+		return m_inputRawData.MouseWheel;
 	}
 
 	float Input::GetMouseWheelMax() const
@@ -72,7 +73,7 @@ namespace pldn
 
 	glm::vec2 Input::GetRawMousePosition() const
 	{
-		return m_inputData.RawMousePosition;
+		return m_inputRawData.RawMousePosition;
 	}
 
 	//float Input::GetGamepadAxis(GamepadAxis axis) const
@@ -148,8 +149,6 @@ namespace pldn
 		glfwSetMouseButtonCallback(window, MouseButtonCallback);
 		glfwSetScrollCallback(window, MouseWheelCallback);
 		glfwSetCursorPosCallback(window, MousePositionCallback);
-
-		Update();
 	}
 
 	Input::~Input()
@@ -178,7 +177,7 @@ namespace pldn
 		{
 			if (action == GLFW_PRESS || action == GLFW_RELEASE)
 			{
-				input->m_inputData.KeysAction[key] = static_cast<Input::InputAction>(action);
+				input->m_inputRawData.KeysAction[key] = static_cast<Input::InputPressState>(action);
 			}
 		}
 	}
@@ -195,7 +194,7 @@ namespace pldn
 		{
 			if (action == GLFW_PRESS || action == GLFW_RELEASE)
 			{
-				input->m_inputData.MouseButtonsAction[button] = static_cast<Input::InputAction>(action);
+				input->m_inputRawData.MouseButtonsAction[button] = static_cast<Input::InputPressState>(action);
 			}
 		}
 	}
@@ -208,8 +207,8 @@ namespace pldn
 			return;
 		}
 
-		input->m_inputData.MouseWheel += static_cast<float>(yoffset);
-		input->m_inputData.MouseWheel = std::clamp(input->m_inputData.MouseWheel, MOUSE_WHEEL_MINIMUM, MOUSE_WHEEL_MAXIMUM);
+		input->m_inputRawData.MouseWheel += static_cast<float>(yoffset);
+		input->m_inputRawData.MouseWheel = std::clamp(input->m_inputRawData.MouseWheel, MOUSE_WHEEL_MINIMUM, MOUSE_WHEEL_MAXIMUM);
 	}
 
 	void Input::MousePositionCallback(GLFWwindow* window, double xposition, double yposition)
@@ -220,49 +219,49 @@ namespace pldn
 			return;
 		}
 
-		input->m_inputData.RawMousePosition.x = static_cast<float>(xposition);
-		input->m_inputData.RawMousePosition.y = static_cast<float>(yposition);
+		input->m_inputRawData.RawMousePosition.x = static_cast<float>(xposition);
+		input->m_inputRawData.RawMousePosition.y = static_cast<float>(yposition);
 	}
 
 	// ------------------------
 	// Private Methods
 	// ------------------------
 
-	void Input::Update()
+	InputCommand Input::Update()
 	{
 		// Update keyboard key states.
 		for (int i = 0; i < NUMBER_OF_KEYS; ++i)
 		{
-			m_inputData.KeysDownPrevious[i] = m_inputData.KeysDown[i];
+			m_inputRawData.KeysDownPrevious[i] = m_inputRawData.KeysDown[i];
 
-			if (m_inputData.KeysAction[i] == InputAction::Press)
+			if (m_inputRawData.KeysAction[i] == InputPressState::Press)
 			{
-				m_inputData.KeysDown[i] = true;
+				m_inputRawData.KeysDown[i] = true;
 			}
-			else if (m_inputData.KeysAction[i] == InputAction::Release)
+			else if (m_inputRawData.KeysAction[i] == InputPressState::Release)
 			{
-				m_inputData.KeysDown[i] = false;
+				m_inputRawData.KeysDown[i] = false;
 			}
 
-			m_inputData.KeysAction[i] = InputAction::None;
+			m_inputRawData.KeysAction[i] = InputPressState::None;
 		}
 
 		// Update mouse button states.
 		for (int i = 0; i < NUMBER_OF_MOUSE_BUTTONS; ++i)
 		{
-			m_inputData.MouseButtonsDownPrevious[i] = m_inputData.MouseButtonsDown[i];
+			m_inputRawData.MouseButtonsDownPrevious[i] = m_inputRawData.MouseButtonsDown[i];
 
-			if (m_inputData.MouseButtonsAction[i] == InputAction::Press)
+			if (m_inputRawData.MouseButtonsAction[i] == InputPressState::Press)
 			{
-				m_inputData.MouseButtonsDown[i] = true;
+				m_inputRawData.MouseButtonsDown[i] = true;
 			}
 
-			else if (m_inputData.MouseButtonsAction[i] == InputAction::Release)
+			else if (m_inputRawData.MouseButtonsAction[i] == InputPressState::Release)
 			{
-				m_inputData.MouseButtonsDown[i] = false;
+				m_inputRawData.MouseButtonsDown[i] = false;
 			}
 
-			m_inputData.MouseButtonsAction[i] = InputAction::None;
+			m_inputRawData.MouseButtonsAction[i] = InputPressState::None;
 		}
 
 		// Update gamepad states.
@@ -275,5 +274,43 @@ namespace pldn
 		//{
 		//	m_inputData.GamepadConnected = false;
 		//}
+
+		InputCommand command = ConfigureInputCommand();
+		command.SequenceNumber = m_sequenceNumber++;
+		command.ClientTick = m_clientTick++;
+
+		return command;
 	}
+
+	const InputCommand Input::ConfigureInputCommand() const
+	{
+		InputCommand command{};
+
+		signed char moveX = 0, moveY = 0;
+		if (GetKeyboardKey(m_moveDownKey)) moveY -= 127;
+		if (GetKeyboardKey(m_moveUpKey)) moveY += 127;
+		if (GetKeyboardKey(m_moveLeftKey)) moveX -= 127;
+		if (GetKeyboardKey(m_moveRightKey)) moveX += 127;
+
+		command.MoveX = static_cast<int8_t>(moveX);
+		command.MoveY = static_cast<int8_t>(moveY);
+
+		if (GetKeyboardKeyDown(m_attackKey))
+		{
+			command.ActionsDown |= static_cast<uint16_t>(InputTypeAction::Attack);
+		}
+
+		if (GetKeyboardKey(m_attackKey))
+		{
+			command.ActionsHeld |= static_cast<uint16_t>(InputTypeAction::Attack);
+		}
+
+		if (GetKeyboardKeyUp(m_attackKey))
+		{
+			command.ActionsUp |= static_cast<uint16_t>(InputTypeAction::Attack);
+		}
+
+		return command;
+	}
+
 } // namespace pldn

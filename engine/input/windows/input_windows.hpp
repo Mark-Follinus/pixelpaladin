@@ -19,6 +19,7 @@ namespace pldn
 {
     // Forward declarations
     class Device;
+    struct InputCommand;
 
     class Input
     {
@@ -194,22 +195,22 @@ namespace pldn
         //    DPadLeft = 14
         //};
 
-        enum class InputAction
+        enum class InputPressState
         {
             Release = 0, // Ugly, but it has to be this way.
             Press = 1,
             None = 2
         };
 
-        struct InputData
+        struct InputRaw
         {
             bool KeysDown[NUMBER_OF_KEYS] = { false };
             bool KeysDownPrevious[NUMBER_OF_KEYS] = { false };
-            InputAction KeysAction[NUMBER_OF_KEYS] = { InputAction::None };
+            InputPressState KeysAction[NUMBER_OF_KEYS] = { InputPressState::None };
 
             bool MouseButtonsDown[NUMBER_OF_MOUSE_BUTTONS] = { false };
             bool MouseButtonsDownPrevious[NUMBER_OF_MOUSE_BUTTONS] = { false };
-            InputAction MouseButtonsAction[NUMBER_OF_MOUSE_BUTTONS] = { InputAction::None };
+            InputPressState MouseButtonsAction[NUMBER_OF_MOUSE_BUTTONS] = { InputPressState::None };
 
             glm::vec2 RawMousePosition = {};
             glm::vec2 MousePositionDelta = {};
@@ -250,12 +251,23 @@ namespace pldn
         static void MouseWheelCallback(GLFWwindow* window, double xoffset, double yoffset);
         static void MousePositionCallback(GLFWwindow* window, double xposition, double yposition);
 
-        void Update();
+        [[nodiscard]] InputCommand Update();
+        [[nodiscard]] const InputCommand ConfigureInputCommand() const;
+
 
     private:
         friend class Engine;
         Device* m_device = nullptr;
-        InputData m_inputData;
+        InputRaw m_inputRawData;
+        uint32_t m_sequenceNumber = 0;
+        uint32_t m_clientTick = 0;
+
+        // Temporary input...
+        KeyboardKey m_moveUpKey = KeyboardKey::W;
+        KeyboardKey m_moveLeftKey = KeyboardKey::A;
+        KeyboardKey m_moveDownKey = KeyboardKey::S;
+        KeyboardKey m_moveRightKey = KeyboardKey::D;
+        KeyboardKey m_attackKey = KeyboardKey::Space;
     };
 
 } // namespace pldn

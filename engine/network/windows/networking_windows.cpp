@@ -8,13 +8,14 @@
 #include <WS2tcpip.h>
 
 // Engine includes
-#include "../data/packet.hpp"
-#include "input/input.hpp"
+#include "../data/packet_header.hpp"
+#include "./input/data/input_command.hpp"
 
 // Compile time variables
 constexpr u_long NON_BLOCKING_SOCKET_COMMAND = 1ul;
 constexpr size_t RECEIVE_CHUNK_SIZE_BYTES = 1024;
-constexpr size_t PACKET_SIZE = sizeof(pldn::PacketHeader) + sizeof(pldn::PacketBody);
+//constexpr size_t PACKET_SIZE = sizeof(pldn::PacketHeader) + sizeof(pldn::PacketBodyTest);
+constexpr size_t PACKET_HEADER_SIZE = sizeof(pldn::PacketHeader);
 constexpr size_t MAX_PACKET_PAYLOAD_SIZE = 4096;
 
 namespace pldn
@@ -327,14 +328,14 @@ namespace pldn
 
     void Networking::InitializeAsHost() {}
 
-    void Networking::Update(Input* input)
+    void Networking::Update(const InputCommand& command)
     {
         switch (m_role)
         {
         case NetworkRole::None: { break; }
         case NetworkRole::Client:
         {
-            UpdateClient(input);
+            UpdateClient(command);
             break;
         }
         case NetworkRole::Server:
@@ -350,7 +351,7 @@ namespace pldn
         }
     }
 
-    void Networking::UpdateClient(Input* input)
+    void Networking::UpdateClient(const InputCommand& command)
     {
         switch (m_clientToServerConnection.State)
         {
@@ -362,10 +363,7 @@ namespace pldn
 
         case NetworkConnectionState::Connected:
         {
-            if (input->GetKeyboardKeyUp(Input::KeyboardKey::Space))
-            {
-                ParseOutgoingData(m_clientToServerConnection);
-            }
+            ParseOutgoingData(m_clientToServerConnection, command);
             SendData(m_clientToServerConnection);
 
             ReceiveData(m_clientToServerConnection);
@@ -520,19 +518,31 @@ namespace pldn
 
     void Networking::ParseOutgoingData(NetworkConnection& connection)
     {
-        PacketHeader header = { PacketHeader::PacketType::ClientInput, sizeof(PacketBody) };
-        PacketBody body = { static_cast<float>(rand()) / static_cast<float>(rand()),
+        PacketHeader header = { PacketType::ClientInputCommand, sizeof(PacketBodyTest) };
+        PacketBodyTest body = { static_cast<float>(rand()) / static_cast<float>(rand()),
                             static_cast<float>(rand()) / static_cast<float>(rand()),
                             static_cast<float>(rand()) / static_cast<float>(rand()),
                             static_cast<float>(rand()) / static_cast<float>(rand()) };
 
         const size_t oldSize = connection.RawSendBuffer.size();
-        const size_t packetSize = sizeof(PacketHeader) + sizeof(PacketBody);
+        const size_t packetSize = PACKET_HEADER_SIZE + sizeof(PacketBodyTest);
 
         connection.RawSendBuffer.resize(oldSize + packetSize);
 
-        std::memcpy(connection.RawSendBuffer.data() + oldSize, &header, sizeof(PacketHeader));
-        std::memcpy(connection.RawSendBuffer.data() + oldSize + sizeof(PacketHeader), &body, sizeof(PacketBody));
+        std::memcpy(connection.RawSendBuffer.data() + oldSize, &header, PACKET_HEADER_SIZE);
+        std::memcpy(connection.RawSendBuffer.data() + oldSize + PACKET_HEADER_SIZE, &body, sizeof(PacketBodyTest));
+    }
+
+    void Networking::ParseOutgoingData(NetworkConnection& connection, const InputCommand& command)
+    {
+        PacketHeader header = { PacketType::ClientInputCommand, sizeof(InputCommand) };
+        const size_t oldSize = connection.RawSendBuffer.size();
+        const size_t packetSize = PACKET_HEADER_SIZE + sizeof(InputCommand);
+
+        connection.RawSendBuffer.resize(oldSize + packetSize);
+
+        std::memcpy(connection.RawSendBuffer.data() + oldSize, &header, PACKET_HEADER_SIZE);
+        std::memcpy(connection.RawSendBuffer.data() + oldSize + PACKET_HEADER_SIZE, &command, sizeof(InputCommand));
     }
 
     void Networking::SendData(NetworkConnection& connection)
@@ -613,23 +623,23 @@ namespace pldn
 
             switch (header.type)
             {
-            case PacketHeader::PacketType::ClientInput:
+            case PacketType::ClientInputCommand:
             {
-                if (header.payloadSize != sizeof(PacketBody)) // Malformed packet. Packet will be discarded below.
+                if (header.payloadSize != sizeof(PacketBodyTest)) // Malformed packet. Packet will be discarded below.
                 {
                     std::printf("ERROR: Invalid Test packet payload size.\n");
                     break;
                 }
 
-                PacketBody body{};
-                std::memcpy(&body, connection.RawReceiveBuffer.data() + packetHeaderSize, sizeof(PacketBody));
+                PacketBodyTest body{};
+                std::memcpy(&body, connection.RawReceiveBuffer.data() + packetHeaderSize, sizeof(PacketBodyTest));
 
                 // Transform this shit here into something else lol.
                 std::printf("%f %f %f %f\n", body.FloatA, body.FloatB, body.FloatC, body.FloatD);
 
                 break;
             }
-            case PacketHeader::PacketType::Disconnect: { break; }
+            case PacketType::ClientDisconnect: { break; }
             default: break;
             }
 
