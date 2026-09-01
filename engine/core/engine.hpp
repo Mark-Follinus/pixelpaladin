@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../game/data/player_data.hpp"
+
 namespace pldn
 {
 	class Device;
@@ -24,6 +26,8 @@ namespace pldn
 		Networking* m_networking = nullptr;
 		Input* m_input = nullptr;
 		Renderer * m_renderer = nullptr;
+
+		PlayerDataMovement playerData;
 	};
 
 } // namespace pldn

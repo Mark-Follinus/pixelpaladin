@@ -6,8 +6,6 @@
 // GLM includes
 #include "glm/glm.hpp"
 
-
-
 // Compile time variables
 constexpr int NUMBER_OF_KEYS = 350;
 constexpr int NUMBER_OF_MOUSE_BUTTONS = 8;

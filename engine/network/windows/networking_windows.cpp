@@ -332,22 +332,22 @@ namespace pldn
     {
         switch (m_role)
         {
-        case NetworkRole::None: { break; }
-        case NetworkRole::Client:
-        {
-            UpdateClient(command);
-            break;
-        }
-        case NetworkRole::Server:
-        {
-            UpdateServer();
-            break;
-        }
-        case NetworkRole::Host:
-        {
-            UpdateHost();
-            break;
-        }
+            case NetworkRole::None: { break; }
+            case NetworkRole::Client:
+            {
+                UpdateClient(command);
+                break;
+            }
+            case NetworkRole::Server:
+            {
+                UpdateServer();
+                break;
+            }
+            case NetworkRole::Host:
+            {
+                UpdateHost();
+                break;
+            }
         }
     }
 
@@ -601,12 +601,12 @@ namespace pldn
 
     void Networking::ParseIncomingData(NetworkConnection& connection)
     {
-        const size_t packetHeaderSize = sizeof(PacketHeader);
+        //const size_t packetHeaderSize = sizeof(PacketHeader);
 
-        while (connection.RawReceiveBuffer.size() >= packetHeaderSize)
+        while (connection.RawReceiveBuffer.size() >= PACKET_HEADER_SIZE)
         {
             PacketHeader header{};
-            std::memcpy(&header, connection.RawReceiveBuffer.data(), packetHeaderSize);
+            std::memcpy(&header, connection.RawReceiveBuffer.data(), PACKET_HEADER_SIZE);
 
             if (header.payloadSize > MAX_PACKET_PAYLOAD_SIZE)
             {
@@ -615,7 +615,7 @@ namespace pldn
                 return;
             }
 
-            const size_t packetSize = packetHeaderSize + header.payloadSize;
+            const size_t packetSize = PACKET_HEADER_SIZE + header.payloadSize;
             if (connection.RawReceiveBuffer.size() < packetSize)
             {
                 return; // Only part of the packet has arrived.
@@ -623,24 +623,29 @@ namespace pldn
 
             switch (header.type)
             {
-            case PacketType::ClientInputCommand:
-            {
-                if (header.payloadSize != sizeof(PacketBodyTest)) // Malformed packet. Packet will be discarded below.
+                case PacketType::ClientInputCommand:
                 {
-                    std::printf("ERROR: Invalid Test packet payload size.\n");
+                    if (header.payloadSize != sizeof(InputCommand)) // Malformed packet. Packet will be discarded below.
+                    {
+                        std::printf("ERROR: Invalid Test packet payload size.\n");
+                        break;
+                    }
+
+                    InputCommand body{};
+                    std::memcpy(&body, connection.RawReceiveBuffer.data() + PACKET_HEADER_SIZE, sizeof(InputCommand));
+
+                    // Transform this shit here into something else lol.
+                    //std::printf("%f %f %f %f\n", body.FloatA, body.FloatB, body.FloatC, body.FloatD);
+
+                    if (body.ActionsHeld & static_cast<uint16_t>(InputTypeAction::Attack))
+                    {
+                        std::printf("MoveX: %i, MoveY: %i", body.MoveX, body.MoveY);
+                    }
+
                     break;
                 }
-
-                PacketBodyTest body{};
-                std::memcpy(&body, connection.RawReceiveBuffer.data() + packetHeaderSize, sizeof(PacketBodyTest));
-
-                // Transform this shit here into something else lol.
-                std::printf("%f %f %f %f\n", body.FloatA, body.FloatB, body.FloatC, body.FloatD);
-
-                break;
-            }
-            case PacketType::ClientDisconnect: { break; }
-            default: break;
+                case PacketType::ClientDisconnect: { break; }
+                default: break;
             }
 
             connection.RawReceiveBuffer.erase(connection.RawReceiveBuffer.begin(), connection.RawReceiveBuffer.begin() + packetSize);
