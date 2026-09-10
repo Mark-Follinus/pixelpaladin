@@ -5,7 +5,7 @@
 
 namespace pldn
 {
-	enum class InputTypeAction : uint16_t
+	enum class InputCommandTypeAction : uint16_t
 	{
 		None = 0,
 
@@ -19,6 +19,7 @@ namespace pldn
 
 	struct InputCommand
 	{
+
 		// Incremented for every input command the client creates/sends.
 		uint32_t SequenceNumber = 0;
 
@@ -27,7 +28,7 @@ namespace pldn
 
 		// Player actions
 		uint16_t ActionsDown = 0; // 0000'0000  0000'0000
-		uint16_t ActionsHeld = 0; // 0000'0000  0000'0000
+		uint16_t ActionsHeld = 0; // 0000'0000  0000'0000 
 		uint16_t ActionsUp   = 0; // 0000'0000  0000'0000
 
 		// Player analog movement
@@ -35,4 +36,10 @@ namespace pldn
 		int8_t MoveY = 0; // 0000'0000
 	};
 
+	// Used by server.
+	struct ClientInputCommand
+	{
+		int8_t ClientID = -1;
+		InputCommand Command = {};
+	};
 }

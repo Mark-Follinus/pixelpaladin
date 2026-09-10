@@ -255,6 +255,8 @@ namespace pldn
 
     private:
         friend class Engine;
+        friend class ClientEngine;
+
         Device* m_device = nullptr;
         InputRaw m_inputRawData;
         uint32_t m_sequenceNumber = 0;

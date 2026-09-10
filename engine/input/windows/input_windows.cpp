@@ -4,7 +4,7 @@
 #include <algorithm>
 
 // Engine includes
-#include "../data/input_command.hpp"
+#include "../commands/input_command.hpp"
 #include "device/device.hpp"
 
 namespace pldn
@@ -297,17 +297,17 @@ namespace pldn
 
 		if (GetKeyboardKeyDown(m_attackKey))
 		{
-			command.ActionsDown |= static_cast<uint16_t>(InputTypeAction::Attack);
+			command.ActionsDown |= static_cast<uint16_t>(InputCommandTypeAction::Attack);
 		}
 
 		if (GetKeyboardKey(m_attackKey))
 		{
-			command.ActionsHeld |= static_cast<uint16_t>(InputTypeAction::Attack);
+			command.ActionsHeld |= static_cast<uint16_t>(InputCommandTypeAction::Attack);
 		}
 
 		if (GetKeyboardKeyUp(m_attackKey))
 		{
-			command.ActionsUp |= static_cast<uint16_t>(InputTypeAction::Attack);
+			command.ActionsUp |= static_cast<uint16_t>(InputCommandTypeAction::Attack);
 		}
 
 		return command;

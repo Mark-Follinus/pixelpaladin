@@ -9,14 +9,16 @@
 
 // Engine includes
 #include "../data/packet_header.hpp"
-#include "./input/data/input_command.hpp"
+#include "./input/commands/input_command.hpp"
 
 // Compile time variables
+constexpr uint8_t WINSOCK_VERSION_MAJOR = 2;
+constexpr uint8_t WINSOCK_VERSION_MINOR = 2;
 constexpr u_long NON_BLOCKING_SOCKET_COMMAND = 1ul;
+
 constexpr size_t RECEIVE_CHUNK_SIZE_BYTES = 1024;
-//constexpr size_t PACKET_SIZE = sizeof(pldn::PacketHeader) + sizeof(pldn::PacketBodyTest);
-constexpr size_t PACKET_HEADER_SIZE = sizeof(pldn::PacketHeader);
-constexpr size_t MAX_PACKET_PAYLOAD_SIZE = 4096;
+constexpr size_t PACKET_HEADER_SIZE_BYTES = sizeof(pldn::PacketHeader);
+constexpr size_t MAX_PACKET_PAYLOAD_SIZE_BYTES = 4096;
 
 namespace pldn
 {
@@ -503,7 +505,7 @@ namespace pldn
         potentialEmptyConnection->State = NetworkConnectionState::Connected;
     }
 
-    void Networking::Disconnect(NetworkConnection& connection)
+    void Networking::DisconnectFromServer(NetworkConnection& connection)
     {
         if (connection.Socket != INVALID_SOCKET)
         {
@@ -525,24 +527,24 @@ namespace pldn
                             static_cast<float>(rand()) / static_cast<float>(rand()) };
 
         const size_t oldSize = connection.RawSendBuffer.size();
-        const size_t packetSize = PACKET_HEADER_SIZE + sizeof(PacketBodyTest);
+        const size_t packetSize = PACKET_HEADER_SIZE_BYTES + sizeof(PacketBodyTest);
 
         connection.RawSendBuffer.resize(oldSize + packetSize);
 
-        std::memcpy(connection.RawSendBuffer.data() + oldSize, &header, PACKET_HEADER_SIZE);
-        std::memcpy(connection.RawSendBuffer.data() + oldSize + PACKET_HEADER_SIZE, &body, sizeof(PacketBodyTest));
+        std::memcpy(connection.RawSendBuffer.data() + oldSize, &header, PACKET_HEADER_SIZE_BYTES);
+        std::memcpy(connection.RawSendBuffer.data() + oldSize + PACKET_HEADER_SIZE_BYTES, &body, sizeof(PacketBodyTest));
     }
 
     void Networking::ParseOutgoingData(NetworkConnection& connection, const InputCommand& command)
     {
         PacketHeader header = { PacketType::ClientInputCommand, sizeof(InputCommand) };
         const size_t oldSize = connection.RawSendBuffer.size();
-        const size_t packetSize = PACKET_HEADER_SIZE + sizeof(InputCommand);
+        const size_t packetSize = PACKET_HEADER_SIZE_BYTES + sizeof(InputCommand);
 
         connection.RawSendBuffer.resize(oldSize + packetSize);
 
-        std::memcpy(connection.RawSendBuffer.data() + oldSize, &header, PACKET_HEADER_SIZE);
-        std::memcpy(connection.RawSendBuffer.data() + oldSize + PACKET_HEADER_SIZE, &command, sizeof(InputCommand));
+        std::memcpy(connection.RawSendBuffer.data() + oldSize, &header, PACKET_HEADER_SIZE_BYTES);
+        std::memcpy(connection.RawSendBuffer.data() + oldSize + PACKET_HEADER_SIZE_BYTES, &command, sizeof(InputCommand));
     }
 
     void Networking::SendData(NetworkConnection& connection)
@@ -603,19 +605,19 @@ namespace pldn
     {
         //const size_t packetHeaderSize = sizeof(PacketHeader);
 
-        while (connection.RawReceiveBuffer.size() >= PACKET_HEADER_SIZE)
+        while (connection.RawReceiveBuffer.size() >= PACKET_HEADER_SIZE_BYTES)
         {
             PacketHeader header{};
-            std::memcpy(&header, connection.RawReceiveBuffer.data(), PACKET_HEADER_SIZE);
+            std::memcpy(&header, connection.RawReceiveBuffer.data(), PACKET_HEADER_SIZE_BYTES);
 
-            if (header.payloadSize > MAX_PACKET_PAYLOAD_SIZE)
+            if (header.payloadSize > MAX_PACKET_PAYLOAD_SIZE_BYTES)
             {
                 std::printf("ERROR: Packet payload too large.\n"); // Probably disconnect this peer because the stream can no longer be trusted.
                 //Disconnect(connection);
                 return;
             }
 
-            const size_t packetSize = PACKET_HEADER_SIZE + header.payloadSize;
+            const size_t packetSize = PACKET_HEADER_SIZE_BYTES + header.payloadSize;
             if (connection.RawReceiveBuffer.size() < packetSize)
             {
                 return; // Only part of the packet has arrived.
@@ -632,12 +634,12 @@ namespace pldn
                     }
 
                     InputCommand body{};
-                    std::memcpy(&body, connection.RawReceiveBuffer.data() + PACKET_HEADER_SIZE, sizeof(InputCommand));
+                    std::memcpy(&body, connection.RawReceiveBuffer.data() + PACKET_HEADER_SIZE_BYTES, sizeof(InputCommand));
 
                     // Transform this shit here into something else lol.
                     //std::printf("%f %f %f %f\n", body.FloatA, body.FloatB, body.FloatC, body.FloatD);
 
-                    if (body.ActionsHeld & static_cast<uint16_t>(InputTypeAction::Attack))
+                    if (body.ActionsHeld & static_cast<uint16_t>(InputCommandTypeAction::Attack))
                     {
                         std::printf("MoveX: %i, MoveY: %i", body.MoveX, body.MoveY);
                     }
@@ -651,5 +653,4 @@ namespace pldn
             connection.RawReceiveBuffer.erase(connection.RawReceiveBuffer.begin(), connection.RawReceiveBuffer.begin() + packetSize);
         }
     }
-
 }

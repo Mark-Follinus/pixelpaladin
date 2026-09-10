@@ -35,6 +35,8 @@ namespace pldn
 
     private:
 	    friend class Engine;
+        friend class ClientEngine;
+        friend class ServerEngine;
 
 	    GLFWwindow* m_window = nullptr;
 	    GLFWmonitor* m_monitor = nullptr;

@@ -17,5 +17,6 @@ namespace pldn
 
 	private:
 		friend class Engine;
+		friend class ClientEngine;
 	};
 }

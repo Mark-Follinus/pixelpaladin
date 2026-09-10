@@ -10,7 +10,7 @@
 #include "render/render.hpp"
 
 // Input includes
-#include "input/data/input_command.hpp"
+#include "input/commands/input_command.hpp"
 #include "input/input.hpp"
 
 namespace pldn

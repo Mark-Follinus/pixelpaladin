@@ -7,9 +7,6 @@
 // Windows library includes
 #include <WinSock2.h>
 
-// Compile time variables
-constexpr size_t MAX_CLIENT_CONNECTIONS = 4;
-
 namespace pldn
 {
 
@@ -41,7 +38,7 @@ namespace pldn
 			int WinSockVersionMajor = 2;
 			int WinSockVersionMinor = 2;
 			const char* IPAddress = "127.0.0.1";
-			const int MaximumConnections = MAX_CLIENT_CONNECTIONS;
+			const int MaximumConnections = 4;
 		};
 
 		struct NetworkConnection
@@ -71,7 +68,7 @@ namespace pldn
 		void CheckServerConnection();
 		void AcceptClientConnections();
 
-		void Disconnect(NetworkConnection& connection);
+		void DisconnectFromServer(NetworkConnection& connection);
 
 		void ParseOutgoingData(NetworkConnection& connection);
 		void ParseOutgoingData(NetworkConnection& connection, const InputCommand& command);
@@ -94,7 +91,7 @@ namespace pldn
 
 		// Server role data members
 		SOCKET m_serverListenSocket = INVALID_SOCKET;
-		std::array<NetworkConnection, MAX_CLIENT_CONNECTIONS> m_serverToClientConnections;
+		std::array<NetworkConnection, 4> m_serverToClientConnections;
 	};
 
 } // namespace pldn

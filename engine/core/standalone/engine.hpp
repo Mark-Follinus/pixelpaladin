@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../game/data/player_data.hpp"
+#include "./game/commands/game_command.hpp"
 
 namespace pldn
 {
@@ -14,6 +14,11 @@ namespace pldn
 	public:
 		Engine();
 		~Engine();
+
+		Engine(const Engine&) = delete;
+		Engine& operator=(const Engine&) = delete;
+		Engine(Engine&&) = delete;
+		Engine& operator=(Engine&&) = delete;
 
 		void Run();
 
