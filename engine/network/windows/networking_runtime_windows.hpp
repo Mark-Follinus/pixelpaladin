@@ -14,7 +14,7 @@ namespace pldn
 	private:
 
 		NetworkRuntime() = default;
-		~NetworkRuntime();
+		~NetworkRuntime() noexcept;
 
 		NetworkRuntime(const NetworkRuntime&) = delete;            // Copy construction: forbidden
 		NetworkRuntime& operator=(const NetworkRuntime&) = delete; // Copy assignment: forbidden

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "./game/commands/game_command.hpp"
+#include "./game/events/game_event.hpp"
 
 namespace pldn
 {
 	class Device;
 	class Networking;
-	class Input;
+	class CurrentInput;
 	class Renderer;
 
 	class Engine
@@ -29,10 +29,8 @@ namespace pldn
 	private:
 		Device* m_device = nullptr;
 		Networking* m_networking = nullptr;
-		Input* m_input = nullptr;
+		CurrentInput* m_input = nullptr;
 		Renderer * m_renderer = nullptr;
-
-		PlayerDataMovement playerData;
 	};
 
 } // namespace pldn

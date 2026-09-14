@@ -11,7 +11,7 @@ namespace pldn
     {
         Invalid      = 0,
         InputCommand = 1,
-        GameCommand  = 2
+        GameEvent  = 2
     };
 
     struct PacketHeader

@@ -102,6 +102,7 @@ namespace pldn
 
     void Device::ErrorCallback(int error, const char* description)
     {
+        std::printf("Error: Device encountered error %i", error);
         fputs(description, stderr);
     }
 

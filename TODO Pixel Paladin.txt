@@ -10,6 +10,7 @@ TODO: Pixel Paladin
 > TODO: Inside NetworkConnections eventually make the send and receive functions to not use memcpy and make it platform agnostic.
 > TODO: Inside the client & server classes serialization assumes matching endianness, struct layout, and compiler settings. Fix it.
 > TODO: Figure out how to handle input queues so they don't just keep expanded forever...
+> TODO: Inside NetworkServer figure out how to handle 
 
 
 ----------------------------------------------------------------------------------------------------
@@ -20,7 +21,7 @@ TODO: Pixel Paladin
 4. Return one authoritative state update. Even something tiny like the resulting player position completes the loop.
 
 
-4b. Make a fixed step update for the client and server...
+[DONE] 4b. Make a fixed step update for the client and server...
 5. Then refactor client/server responsibilities. Once the slice works, the natural boundaries will be much more obvious. A likely eventual structure is ClientEndpoint and ServerEndpoint, composed by Networking; a host can own both.
 6. Add separate build targets last. Make a headless server executable once there is actually client-only code worth excluding. Prefer separate CMake targets linked against shared game/network code, rather than scattering #ifdef SERVER_BUILD throughout the engine.
 

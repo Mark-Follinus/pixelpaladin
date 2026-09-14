@@ -81,7 +81,7 @@ namespace pldn
 		}
 
 		bool connectionLost = false;
-		std::array<std::byte, RECEIVE_CHUNK_SIZE_BYTES> receiveChunk;
+		std::array<std::byte, RECEIVE_CHUNK_SIZE_BYTES> receiveChunk{};
 
 		// Getting all available data.
 		while (true)
@@ -169,15 +169,28 @@ namespace pldn
 		return true;
 	}
 
-	void Connection::QueuePacket(Packet packet)
+	bool Connection::QueuePacket(Packet packet)
 	{
+		if (!IsConnected())
+		{
+			return false;
+		}
+
+		if (packet.Type == PacketType::Invalid)
+		{
+			std::printf("ERROR: Cannot queue an invalid packet.\n");
+			return false;
+		}
+
 		if (packet.Payload.size() > MAX_PACKET_PAYLOAD_SIZE_BYTES)
 		{
 			std::printf("ERROR: Packet payload too large.\n");
-			return;
+			return false;
 		}
 
 		m_outgoingPackets.push(std::move(packet));
+
+		return true;
 	}
 
 	void Connection::FlushPackets()
@@ -251,6 +264,7 @@ namespace pldn
 		m_rawSendBuffer.clear();
 		m_sendOffset = 0;
 
+		m_incomingPackets = {};
 		m_outgoingPackets = {};
 
 		CloseSocket();

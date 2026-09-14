@@ -108,7 +108,7 @@ namespace pldn
         }
 
         m_incomingInputCommands = {};
-        m_outgoingGameCommands = {};
+        m_outgoingGameEvents = {};
     }
 
 	void NetworkServer::Receive() 
@@ -141,7 +141,7 @@ namespace pldn
                             break;
                         }
 
-                        m_incomingInputCommands.push({client->ClientID, command });
+                        m_incomingInputCommands.push({client->ID, command });
                         break;
                     }
 
@@ -170,9 +170,9 @@ namespace pldn
 
 	void NetworkServer::Send()
     {
-        while (!m_outgoingGameCommands.empty())
+        while (!m_outgoingGameEvents.empty())
         {
-            ClientGameCommand& outgoing = m_outgoingGameCommands.front();
+            ClientGameEvent& outgoing = m_outgoingGameEvents.front();
 
             for (std::optional<ClientConnection>& client : m_connections)
             {
@@ -181,16 +181,16 @@ namespace pldn
                     continue;
                 }
 
-                if (client->ClientID != outgoing.ClientID)
+                if (client->ID != outgoing.RecipientClientID)
                 {
                     continue;
                 }
 
-                client->ConnectedPeer.QueuePacket(SerializeGameCommand(outgoing.Command));
+                client->ConnectedPeer.QueuePacket(SerializeGameEvent(outgoing.Event));
                 break;
             }
 
-            m_outgoingGameCommands.pop();
+            m_outgoingGameEvents.pop();
         }
 
         for (std::optional<ClientConnection>& client : m_connections)
@@ -202,25 +202,22 @@ namespace pldn
         }
     }
 
-	bool NetworkServer::PollInputCommand(int8_t& clientID, InputCommand& command) 
+	bool NetworkServer::PollInputCommand(ClientInputCommand& command) 
     {
         if (m_incomingInputCommands.empty())
         {
             return false;
         }
 
-        ClientInputCommand& incoming = m_incomingInputCommands.front();
-
-        clientID = incoming.ClientID;
-        command = std::move(incoming.Command);
+        command = std::move(m_incomingInputCommands.front());
 
         m_incomingInputCommands.pop();
         return true;
     }
 
-	void NetworkServer::QueueGameCommand(int8_t clientID, GameCommand command)
+	void NetworkServer::QueueGameEvent(ClientGameEvent event)
     {
-        m_outgoingGameCommands.push({clientID, std::move(command)});
+        m_outgoingGameEvents.push(std::move(event));
     }
 
 // ------------------------

@@ -19,7 +19,7 @@ namespace pldn
 // Private Constructors
 // ------------------------ 
 
-	NetworkRuntime::~NetworkRuntime()
+	NetworkRuntime::~NetworkRuntime() noexcept
 	{
 		Shutdown();
 	}

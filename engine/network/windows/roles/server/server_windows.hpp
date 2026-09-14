@@ -11,10 +11,11 @@
 #include <WinSock2.h>
 
 // Engine includes
-#include "game/commands/game_command.hpp"
+#include "game/events/game_event.hpp"
 #include "input/commands/input_command.hpp"
-#include "./network/data/network_config.hpp"
-#include "./network/windows/connection/connection_windows.hpp"
+#include "network/data/network_types.hpp"
+#include "network/data/network_config.hpp"
+#include "network/windows/connection/connection_windows.hpp"
 
 // Compile time variables
 constexpr size_t MAX_CLIENT_CONNECTIONS = 4;
@@ -24,9 +25,9 @@ namespace pldn
 	struct ClientConnection
 	{
 		ClientConnection(int8_t id, SOCKET socket)
-			: ClientID(id), ConnectedPeer(socket) {}
+			: ID(id), ConnectedPeer(socket) {}
 
-		int8_t ClientID = -1;
+		ClientID ID = -1;
 		Connection ConnectedPeer;
 	};
 
@@ -39,8 +40,8 @@ namespace pldn
 		void Receive();
 		void Send();
 
-		bool PollInputCommand(int8_t& clientID, InputCommand& command);
-		void QueueGameCommand(int8_t clientID, GameCommand command);
+		bool PollInputCommand(ClientInputCommand& command);
+		void QueueGameEvent(ClientGameEvent event);
 
 	private:
 		NetworkServer(const std::string& ipAddress, uint16_t port);
@@ -58,6 +59,6 @@ namespace pldn
 		std::array<std::optional<ClientConnection>, MAX_CLIENT_CONNECTIONS> m_connections = {};
 
 		std::queue<ClientInputCommand> m_incomingInputCommands = {};
-		std::queue<ClientGameCommand> m_outgoingGameCommands = {};
+		std::queue<ClientGameEvent> m_outgoingGameEvents = {};
 	};
 }

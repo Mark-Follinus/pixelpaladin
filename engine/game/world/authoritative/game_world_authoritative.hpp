@@ -7,38 +7,46 @@
 
 // Engine includes
 #include "input/commands/input_command.hpp"
-#include "game/commands/game_command.hpp"
+#include "game/constants/game_constants.hpp"
+#include "game/events/game_event.hpp"
 
+// -----------------
 #include "game/player_state.hpp"
-
-// Compile time variables
-constexpr size_t MAX_PLAYERS_ALLOWED = 4;
 
 namespace pldn
 {
 	class GameWorldAuthoritative
 	{
+		struct PlayerStateAuthoritative
+		{
+			PlayerState State = {};
+			InputCommand CurrentInput = {};
+		};
 
 	public:
 		void Update(const float deltaTime);
 
 		void QueueInputCommand(ClientInputCommand command);
-		bool PollGameCommand(ClientGameCommand& command);
+		bool PollGameEvent(ClientGameEvent& command);
 
 	private:
 		GameWorldAuthoritative();
 		~GameWorldAuthoritative();
 
+		void ProcessInputCommands();
+		void MovePlayers(const float deltaTime);
+		void GenerateGameEvents();
+
 	private:
 		friend class Engine;
 		friend class ServerEngine;
 
-		std::array<std::optional<PlayerState>, MAX_PLAYERS_ALLOWED> m_players = {};
+		std::array<std::optional<PlayerStateAuthoritative>, MAX_PLAYERS_ALLOWED> m_players = {};
 
 		std::queue<ClientInputCommand> m_incomingInputCommands = {};
-		std::queue<ClientGameCommand> m_outgoingGameCommands = {};
+		std::queue<ClientGameEvent> m_outgoingGameEvents = {};
 
-		uint32_t m_serverTick = 0;
+		uint64_t m_serverTick = 0;
 	};
 
 } // namespace pldn

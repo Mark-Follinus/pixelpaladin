@@ -65,10 +65,10 @@ namespace pldn
 				m_networkClient->Receive();
 
 				/* QUEUE INCOMING COMMANDS */
-				GameCommand command;
-				while (m_networkClient->PollGameCommand(command))
+				GameEvent command;
+				while (m_networkClient->PollGameEvent(command))
 				{
-					m_gameWorld->QueueGameCommand(command);
+					m_gameWorld->QueueGameEvent(command);
 				}
 
 				/* GAME UPDATE */
@@ -112,7 +112,7 @@ namespace pldn
 		}
 
 		m_networkClient = new NetworkClient();
-		m_input = new Input(m_device);
+		m_input = new CurrentInput(m_device);
 		m_gameWorld = new GameWorldReplicated();
 		m_renderer = new Renderer();
 

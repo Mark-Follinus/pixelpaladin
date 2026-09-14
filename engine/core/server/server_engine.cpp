@@ -48,21 +48,20 @@ namespace pldn
 			m_networkServer->Receive();
 
 			/* QUEUE INCOMING INPUTS */
-			int8_t clientID = -1;
-			InputCommand inputCommand{};
-			while (m_networkServer->PollInputCommand(clientID, inputCommand))
+			ClientInputCommand clientInput{};
+			while (m_networkServer->PollInputCommand(clientInput))
 			{
-				m_gameWorld->QueueInputCommand({clientID, std::move(inputCommand)});
+				m_gameWorld->QueueInputCommand(std::move(clientInput));
 			}
 
 			/* UPDATE WORLD */
 			m_gameWorld->Update(static_cast<float>(TICK_INTERVAL.count()));
 
 			/* QUEUE OUTGOING GAME COMMANDS */
-			ClientGameCommand clientCommand{};
-			while (m_gameWorld->PollGameCommand(clientCommand))
+			ClientGameEvent clientEvent{};
+			while (m_gameWorld->PollGameEvent(clientEvent))
 			{
-				m_networkServer->QueueGameCommand(clientCommand.ClientID, std::move(clientCommand.Command));
+				m_networkServer->QueueGameEvent(std::move(clientEvent));
 			}
 
 			/* NETWORK SEND */

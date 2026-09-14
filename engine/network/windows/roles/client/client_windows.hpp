@@ -10,7 +10,7 @@
 #include <WinSock2.h>
 
 // Engine includes
-#include "game/commands/game_command.hpp"
+#include "game/events/game_event.hpp"
 #include "input/commands/input_command.hpp"
 #include "./network/windows/connection/connection_windows.hpp"
 
@@ -34,7 +34,7 @@ namespace pldn
 		void Receive();
 
 		void QueueInputCommand(InputCommand command);
-		bool PollGameCommand(GameCommand& command);
+		bool PollGameEvent(GameEvent& event);
 
 	private:
 		NetworkClient();
@@ -53,7 +53,7 @@ namespace pldn
 		std::optional<Connection> m_connection;
 
 		std::queue<InputCommand> m_outgoingInputCommands = {};
-		std::queue<GameCommand> m_incomingGameCommands = {};
+		std::queue<GameEvent> m_incomingGameEvents = {};
 	};
 }
 

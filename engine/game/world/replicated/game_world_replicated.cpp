@@ -1,5 +1,8 @@
 #include "game_world_replicated.hpp"
 
+// Standard library includes
+#include <utility>
+
 namespace pldn
 {
 
@@ -13,9 +16,9 @@ namespace pldn
 
 	}
 
-	void GameWorldReplicated::QueueGameCommand(GameCommand command)
+	void GameWorldReplicated::QueueGameEvent(GameEvent command)
 	{
-		m_incomingGameCommands.push(std::move(command));
+		m_incomingGameEvents.push(std::move(command));
 	}
 
 // ------------------------

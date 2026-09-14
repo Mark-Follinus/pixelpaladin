@@ -19,7 +19,7 @@ namespace pldn
     class Device;
     struct InputCommand;
 
-    class Input
+    class CurrentInput
     {
     public:
         enum class KeyboardKey
@@ -241,8 +241,8 @@ namespace pldn
         //bool GetGamepadButtonUp(GamepadButton button) const;   // Returns whether a given gamepad button is no longer pressed in the current frame while in the previous frame it was.
 
     private:
-        Input(Device* device);
-        ~Input();
+        CurrentInput(Device* device);
+        ~CurrentInput();
 
         static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);

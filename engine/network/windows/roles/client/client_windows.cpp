@@ -100,7 +100,7 @@ namespace pldn
 		}
 
 		m_outgoingInputCommands = {};
-		m_incomingGameCommands = {};
+		m_incomingGameEvents = {};
 
 		m_connectionState = NetworkClientState::Disconnected;
 	}
@@ -158,20 +158,20 @@ namespace pldn
 		{
 			switch (packet.Type)
 			{
-				case PacketType::GameCommand:
+				case PacketType::GameEvent:
 				{
-					GameCommand command{};
+					GameEvent command{};
 
-					if (!DeserializeGameCommand(packet, command))
+					if (!DeserializeGameEvent(packet, command))
 					{
-						std::printf("Client: Invalid GameCommand packet.\n");
+						std::printf("Client: Invalid Game Event packet.\n");
 
 						m_connection->Disconnect();
 						removeConnection = true;
 						break;
 					}
 
-					m_incomingGameCommands.push(std::move(command));
+					m_incomingGameEvents.push(std::move(command));
 					break;
 				}
 
@@ -205,16 +205,16 @@ namespace pldn
 		m_outgoingInputCommands.push(std::move(command));
 	}
 
-	bool NetworkClient::PollGameCommand(GameCommand& command)
+	bool NetworkClient::PollGameEvent(GameEvent& event)
 	{
-		if (m_incomingGameCommands.empty())
+		if (m_incomingGameEvents.empty())
 		{
 			return false;
 		}
 
-		command = std::move(m_incomingGameCommands.front());
+		event = std::move(m_incomingGameEvents.front());
 
-		m_incomingGameCommands.pop();
+		m_incomingGameEvents.pop();
 		return true;
 	}
 

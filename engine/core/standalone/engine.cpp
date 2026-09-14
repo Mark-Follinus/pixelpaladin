@@ -75,7 +75,7 @@ namespace pldn
 		Networking::NetworkConfig networkConfig = {};
 		m_networking = new Networking(Networking::NetworkRole::Client, networkConfig);
 
-		m_input = new Input(m_device);
+		m_input = new CurrentInput(m_device);
 
 		m_renderer = new Renderer();
 	}

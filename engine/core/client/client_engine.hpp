@@ -5,7 +5,7 @@ namespace pldn
 	class Device;
 	class NetworkRuntime;
 	class NetworkClient;
-	class Input;
+	class CurrentInput;
 	class GameWorldReplicated;
 	class Renderer;
 
@@ -31,7 +31,7 @@ namespace pldn
 		Device*					m_device = nullptr;
 		NetworkRuntime* m_networkRuntime = nullptr;
 		NetworkClient*   m_networkClient = nullptr;
-		Input*					 m_input = nullptr;
+		CurrentInput*					 m_input = nullptr;
 		GameWorldReplicated* m_gameWorld = nullptr;
 		Renderer*			  m_renderer = nullptr;
 	};

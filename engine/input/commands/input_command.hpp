@@ -3,6 +3,9 @@
 // Standard library includes
 #include <cstdint>
 
+// Engine includes
+#include "./network/data/network_types.hpp"
+
 namespace pldn
 {
 	enum class InputCommandTypeAction : uint16_t
@@ -36,10 +39,9 @@ namespace pldn
 		int8_t MoveY = 0; // 0000'0000
 	};
 
-	// Used by server.
 	struct ClientInputCommand
 	{
-		int8_t ClientID = -1;
+		ClientID ClientID = INVALID_CLIENT_ID;
 		InputCommand Command = {};
 	};
 }

@@ -7,11 +7,15 @@
 #include "glm/glm.hpp"
 
 // Engine includes
+#include "input/commands/input_command.hpp"
+#include "./network/data/network_types.hpp"
+
+// Engine includes
 namespace pldn
 {
 	struct PlayerState
 	{
-        int8_t ID = 0;
+        ClientID ID = -1;
 
         glm::vec2 Position = {};
         glm::vec2 Velocity = {};

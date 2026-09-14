@@ -1,22 +1,25 @@
 #pragma once
 
 // Standard library includes
+#include <array>
 #include <queue>
+#include <optional>
 
 // Engine includes
-#include "game/commands/game_command.hpp"
+#include "game/constants/game_constants.hpp"
+#include "game/events/game_event.hpp"
 
+// ------ 
 #include "game/player_state.hpp"
 
 namespace pldn
 {
-	
 	class GameWorldReplicated
 	{
 
 	public:
 		void Update(const float deltaTime);
-		void QueueGameCommand(GameCommand command);
+		void QueueGameEvent(GameEvent command);
 
 	private:
 		GameWorldReplicated() = default;
@@ -26,7 +29,9 @@ namespace pldn
 		friend class Engine;
 		friend class ClientEngine;
 
-		std::queue<GameCommand> m_incomingGameCommands = {};
+		std::array<std::optional<PlayerState>, MAX_PLAYERS_ALLOWED> m_players = {};
+
+		std::queue<GameEvent> m_incomingGameEvents = {};
 	};
 
 } // namespace pldn

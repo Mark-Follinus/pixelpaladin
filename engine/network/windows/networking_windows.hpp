@@ -12,7 +12,7 @@ namespace pldn
 
 	// Forward Declarations
 	struct InputCommand;
-	class Input;
+	class CurrentInput;
 
 	class Networking
 	{

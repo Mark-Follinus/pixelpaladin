@@ -6,21 +6,22 @@
 #include <type_traits>
 
 // Engine includes
+#include "network_types.hpp"
 #include "packet.hpp"
 #include "input/commands/input_command.hpp"
-#include "game/commands/game_command.hpp"
-
-// Compiler time variables
-constexpr size_t INPUT_COMMAND_SIZE_IN_BYTES = sizeof(pldn::InputCommand);
-constexpr size_t GAME_COMMAND_SIZE_IN_BYTES = sizeof(pldn::GameCommand);
+#include "game/events/game_event.hpp"
 
 namespace pldn
 {
+    // Compiler time variables
+    constexpr size_t INPUT_COMMAND_SIZE_IN_BYTES = sizeof(pldn::InputCommand);
+    constexpr size_t GAME_EVENT_SIZE_IN_BYTES = sizeof(pldn::GameEvent);
+
 	static_assert(std::is_trivially_copyable_v<InputCommand>, "Input command is too complex to copy cleanly.");
     static_assert(sizeof(InputCommand) == 16, "InputCommand wire layout changed.");
 
-	static_assert(std::is_trivially_copyable_v<GameCommand>, "Game command is too complex to copy cleanly.");
-    static_assert(sizeof(GameCommand) == 16, "GameCommand wire layout changed.");
+	static_assert(std::is_trivially_copyable_v<GameEvent>, "GameEvent is too complex to copy cleanly.");
+    static_assert(sizeof(GameEvent) == 16, "GameEvent wire layout changed.");
 
 // ------------------------
 // Input Command
@@ -50,28 +51,28 @@ namespace pldn
     }
 
 // ------------------------
-// Game Command
+// Game Event
 // ------------------------ 
 
-    inline Packet SerializeGameCommand(const GameCommand& command)
+    inline Packet SerializeGameEvent(const GameEvent& event)
     {
         Packet packet{};
-            packet.Type = PacketType::GameCommand;
-            packet.Payload.resize(GAME_COMMAND_SIZE_IN_BYTES);
+            packet.Type = PacketType::GameEvent;
+            packet.Payload.resize(GAME_EVENT_SIZE_IN_BYTES);
 
-        std::memcpy(packet.Payload.data(), &command, GAME_COMMAND_SIZE_IN_BYTES);
+        std::memcpy(packet.Payload.data(), &event, GAME_EVENT_SIZE_IN_BYTES);
 
         return packet;
     }
 
-    inline bool DeserializeGameCommand(const Packet& packet, GameCommand& command)
+    inline bool DeserializeGameEvent(const Packet& packet, GameEvent& event)
     {
-        if (packet.Type != PacketType::GameCommand || packet.Payload.size() != GAME_COMMAND_SIZE_IN_BYTES)
+        if (packet.Type != PacketType::GameEvent || packet.Payload.size() != GAME_EVENT_SIZE_IN_BYTES)
         {
             return false;
         }
 
-        std::memcpy(&command, packet.Payload.data(), GAME_COMMAND_SIZE_IN_BYTES);
+        std::memcpy(&event, packet.Payload.data(), GAME_EVENT_SIZE_IN_BYTES);
 
         return true;
     }
