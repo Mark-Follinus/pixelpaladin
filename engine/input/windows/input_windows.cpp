@@ -14,64 +14,64 @@ namespace pldn
 // Public Methods
 // ------------------------
 
-	bool CurrentInput::GetKeyboardKey(CurrentInput::KeyboardKey key) const
+	bool Input::GetKeyboardKey(Input::KeyboardKey key) const
 	{
 		const int k = static_cast<int>(key);
 		assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
 		return m_inputRawData.KeysDown[k];
 	}
 
-	bool CurrentInput::GetKeyboardKeyDown(KeyboardKey key) const
+	bool Input::GetKeyboardKeyDown(KeyboardKey key) const
 	{
 		const int k = static_cast<int>(key);
 		assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
 		return m_inputRawData.KeysDown[k] && !m_inputRawData.KeysDownPrevious[k];
 	}
 
-	bool CurrentInput::GetKeyboardKeyUp(KeyboardKey key) const
+	bool Input::GetKeyboardKeyUp(KeyboardKey key) const
 	{
 		const int k = static_cast<int>(key);
 		assert(k >= GLFW_KEY_SPACE && k <= GLFW_KEY_LAST);
 		return !m_inputRawData.KeysDown[k] && m_inputRawData.KeysDownPrevious[k];
 	}
 
-	bool CurrentInput::GetMouseButton(MouseButton button) const
+	bool Input::GetMouseButton(MouseButton button) const
 	{
 		const int b = static_cast<int>(button);
 		assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
 		return m_inputRawData.MouseButtonsDown[b];
 	}
 
-	bool CurrentInput::GetMouseButtonDown(MouseButton button) const
+	bool Input::GetMouseButtonDown(MouseButton button) const
 	{
 		const int b = static_cast<int>(button);
 		assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
 		return m_inputRawData.MouseButtonsDown[b] && !m_inputRawData.MouseButtonsDownPrevious[b];
 	}
 
-	bool CurrentInput::GetMouseButtonUp(MouseButton button) const
+	bool Input::GetMouseButtonUp(MouseButton button) const
 	{
 		const int b = static_cast<int>(button);
 		assert(b >= GLFW_MOUSE_BUTTON_1 && b <= GLFW_MOUSE_BUTTON_LAST);
 		return !m_inputRawData.MouseButtonsDown[b] && m_inputRawData.MouseButtonsDownPrevious[b];
 	}
 
-	float CurrentInput::GetMouseWheel() const
+	float Input::GetMouseWheel() const
 	{
 		return m_inputRawData.MouseWheel;
 	}
 
-	float CurrentInput::GetMouseWheelMax() const
+	float Input::GetMouseWheelMax() const
 	{
 		return MOUSE_WHEEL_MAXIMUM;
 	}
 
-	float CurrentInput::GetMouseWheelMin() const
+	float Input::GetMouseWheelMin() const
 	{
 		return MOUSE_WHEEL_MINIMUM;
 	}
 
-	glm::vec2 CurrentInput::GetRawMousePosition() const
+	glm::vec2 Input::GetRawMousePosition() const
 	{
 		return m_inputRawData.RawMousePosition;
 	}
@@ -140,7 +140,7 @@ namespace pldn
 	// Private Constructors
 	// ------------------------ 
 
-	CurrentInput::CurrentInput(Device* device) : m_device(device)
+	Input::Input(Device* device) : m_device(device)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(m_device->GetWindow());
 		glfwSetWindowUserPointer(window, this);
@@ -151,7 +151,7 @@ namespace pldn
 		glfwSetCursorPosCallback(window, MousePositionCallback);
 	}
 
-	CurrentInput::~CurrentInput()
+	Input::~Input()
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(m_device->GetWindow()); // Owning device pointer gets deleted last, so we can do this. We live dangerously.
 
@@ -165,9 +165,9 @@ namespace pldn
 	// Private Static Methods
 	// ------------------------ 
 
-	void CurrentInput::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-		CurrentInput* input = static_cast<CurrentInput*>(glfwGetWindowUserPointer(window));
+		Input* input = static_cast<Input*>(glfwGetWindowUserPointer(window));
 		if (!input)
 		{
 			return;
@@ -177,14 +177,14 @@ namespace pldn
 		{
 			if (action == GLFW_PRESS || action == GLFW_RELEASE)
 			{
-				input->m_inputRawData.KeysAction[key] = static_cast<CurrentInput::InputPressState>(action);
+				input->m_inputRawData.KeysAction[key] = static_cast<Input::InputPressState>(action);
 			}
 		}
 	}
 
-	void CurrentInput::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+	void Input::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
-		CurrentInput* input = static_cast<CurrentInput*>(glfwGetWindowUserPointer(window));
+		Input* input = static_cast<Input*>(glfwGetWindowUserPointer(window));
 		if (!input)
 		{
 			return;
@@ -194,14 +194,14 @@ namespace pldn
 		{
 			if (action == GLFW_PRESS || action == GLFW_RELEASE)
 			{
-				input->m_inputRawData.MouseButtonsAction[button] = static_cast<CurrentInput::InputPressState>(action);
+				input->m_inputRawData.MouseButtonsAction[button] = static_cast<Input::InputPressState>(action);
 			}
 		}
 	}
 
-	void CurrentInput::MouseWheelCallback(GLFWwindow* window, double xoffset, double yoffset)
+	void Input::MouseWheelCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
-		CurrentInput* input = static_cast<CurrentInput*>(glfwGetWindowUserPointer(window));
+		Input* input = static_cast<Input*>(glfwGetWindowUserPointer(window));
 		if (!input)
 		{
 			return;
@@ -211,9 +211,9 @@ namespace pldn
 		input->m_inputRawData.MouseWheel = std::clamp(input->m_inputRawData.MouseWheel, MOUSE_WHEEL_MINIMUM, MOUSE_WHEEL_MAXIMUM);
 	}
 
-	void CurrentInput::MousePositionCallback(GLFWwindow* window, double xposition, double yposition)
+	void Input::MousePositionCallback(GLFWwindow* window, double xposition, double yposition)
 	{
-		CurrentInput* input = static_cast<CurrentInput*>(glfwGetWindowUserPointer(window));
+		Input* input = static_cast<Input*>(glfwGetWindowUserPointer(window));
 		if (!input)
 		{
 			return;
@@ -227,7 +227,7 @@ namespace pldn
 	// Private Methods
 	// ------------------------
 
-	InputCommand CurrentInput::Update()
+	InputCommand Input::Update()
 	{
 		// Update keyboard key states.
 		for (int i = 0; i < NUMBER_OF_KEYS; ++i)
@@ -282,7 +282,7 @@ namespace pldn
 		return command;
 	}
 
-	const InputCommand CurrentInput::ConfigureInputCommand() const
+	const InputCommand Input::ConfigureInputCommand() const
 	{
 		InputCommand command{};
 

@@ -5,8 +5,8 @@
 namespace pldn
 {
 	class Device;
-	class Networking;
-	class CurrentInput;
+	//class Networking;
+	class Input;
 	class Renderer;
 
 	class Engine
@@ -28,8 +28,8 @@ namespace pldn
 
 	private:
 		Device* m_device = nullptr;
-		Networking* m_networking = nullptr;
-		CurrentInput* m_input = nullptr;
+		//Networking* m_networking = nullptr;
+		Input* m_input = nullptr;
 		Renderer * m_renderer = nullptr;
 	};
 

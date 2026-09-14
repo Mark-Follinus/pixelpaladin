@@ -1,4 +1,4 @@
-#define PLDN_BUILD_MODE 2
+#define PLDN_BUILD_MODE 1
 
 #if PLDN_BUILD_MODE == 0
 #include "core/standalone/engine.hpp"

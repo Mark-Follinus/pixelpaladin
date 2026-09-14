@@ -27,7 +27,7 @@ namespace pldn
 		void Update(const float deltaTime);
 
 		void QueueInputCommand(ClientInputCommand command);
-		bool PollGameEvent(ClientGameEvent& command);
+		bool PollGameEvent(GameEvent& command);
 
 	private:
 		GameWorldAuthoritative();
@@ -44,9 +44,9 @@ namespace pldn
 		std::array<std::optional<PlayerStateAuthoritative>, MAX_PLAYERS_ALLOWED> m_players = {};
 
 		std::queue<ClientInputCommand> m_incomingInputCommands = {};
-		std::queue<ClientGameEvent> m_outgoingGameEvents = {};
+		std::queue<GameEvent> m_outgoingGameEvents = {};
 
-		uint64_t m_serverTick = 0;
+		uint32_t m_serverTick = 0;
 	};
 
 } // namespace pldn

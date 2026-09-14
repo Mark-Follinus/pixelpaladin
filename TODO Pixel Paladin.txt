@@ -12,6 +12,7 @@ TODO: Pixel Paladin
 > TODO: Figure out how to handle input queues so they don't just keep expanded forever...
 > TODO: Inside NetworkServer figure out how to handle 
 
+> TODO: Add Client connect, client disconnect events. 
 
 ----------------------------------------------------------------------------------------------------
 

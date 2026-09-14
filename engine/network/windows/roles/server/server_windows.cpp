@@ -172,7 +172,7 @@ namespace pldn
     {
         while (!m_outgoingGameEvents.empty())
         {
-            ClientGameEvent& outgoing = m_outgoingGameEvents.front();
+            GameEvent& event = m_outgoingGameEvents.front();
 
             for (std::optional<ClientConnection>& client : m_connections)
             {
@@ -181,13 +181,7 @@ namespace pldn
                     continue;
                 }
 
-                if (client->ID != outgoing.RecipientClientID)
-                {
-                    continue;
-                }
-
-                client->ConnectedPeer.QueuePacket(SerializeGameEvent(outgoing.Event));
-                break;
+                client->ConnectedPeer.QueuePacket(SerializeGameEvent(event));
             }
 
             m_outgoingGameEvents.pop();
@@ -215,7 +209,7 @@ namespace pldn
         return true;
     }
 
-	void NetworkServer::QueueGameEvent(ClientGameEvent event)
+	void NetworkServer::QueueGameEvent(GameEvent event)
     {
         m_outgoingGameEvents.push(std::move(event));
     }

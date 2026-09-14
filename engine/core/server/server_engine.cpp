@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <chrono>
 #include <thread>
+#include <utility>
 
 // Engine includes
 #include "network/network.hpp"
@@ -58,10 +59,10 @@ namespace pldn
 			m_gameWorld->Update(static_cast<float>(TICK_INTERVAL.count()));
 
 			/* QUEUE OUTGOING GAME COMMANDS */
-			ClientGameEvent clientEvent{};
-			while (m_gameWorld->PollGameEvent(clientEvent))
+			GameEvent event{};
+			while (m_gameWorld->PollGameEvent(event))
 			{
-				m_networkServer->QueueGameEvent(std::move(clientEvent));
+				m_networkServer->QueueGameEvent(std::move(event));
 			}
 
 			/* NETWORK SEND */

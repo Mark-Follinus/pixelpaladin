@@ -31,7 +31,7 @@ namespace pldn
 		m_incomingInputCommands.push(std::move(command));
 	}
 
-	bool GameWorldAuthoritative::PollGameEvent(ClientGameEvent& command)
+	bool GameWorldAuthoritative::PollGameEvent(GameEvent& command)
 	{
 		if (m_outgoingGameEvents.empty())
 		{
@@ -148,12 +148,12 @@ namespace pldn
 
 			const PlayerState& player = playerSlot->State;
 
-			ClientGameEvent event{};
-			event.RecipientClientID = player.ID;
-			event.Event.Type = GameEventType::PlayerState;
-			event.Event.ServerTick = m_serverTick;
-			event.Event.PositionX = player.Position.x;
-			event.Event.PositionY = player.Position.y;
+			GameEvent event{};
+			event.ID = playerSlot->State.ID;
+			event.Type = GameEventType::PlayerState;
+			event.ServerTick = m_serverTick;
+			event.PositionX = player.Position.x;
+			event.PositionY = player.Position.y;
 
 			m_outgoingGameEvents.push(std::move(event));
 		}

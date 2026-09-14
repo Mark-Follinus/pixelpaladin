@@ -50,7 +50,7 @@ namespace pldn
 			const InputCommand& inputRaw = m_input->Update();
 
 			/* NETWORK UPDATE */
-			m_networking->Update(inputRaw);
+			//m_networking->Update(inputRaw);
 
 			/* GAME UPDATE */
 
@@ -72,10 +72,10 @@ namespace pldn
 	{
 		m_device = new Device();
 
-		Networking::NetworkConfig networkConfig = {};
-		m_networking = new Networking(Networking::NetworkRole::Client, networkConfig);
+		//Networking::NetworkConfig networkConfig = {};
+		//m_networking = new Networking(Networking::NetworkRole::Client, networkConfig);
 
-		m_input = new CurrentInput(m_device);
+		m_input = new Input(m_device);
 
 		m_renderer = new Renderer();
 	}
@@ -88,8 +88,8 @@ namespace pldn
 		delete m_input;
 		m_input = nullptr;
 
-		delete m_networking;
-		m_networking = nullptr;
+		//delete m_networking;
+		//m_networking = nullptr;
 
 		delete m_device;
 		m_device = nullptr;

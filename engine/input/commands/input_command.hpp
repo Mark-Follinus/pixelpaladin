@@ -22,14 +22,13 @@ namespace pldn
 
 	struct InputCommand
 	{
-
 		// Incremented for every input command the client creates/sends.
 		uint32_t SequenceNumber = 0;
 
 		// Client simulation tick on which this input was captured.
 		uint32_t ClientTick = 0;
 
-		// Player actions
+		// Player actions.
 		uint16_t ActionsDown = 0; // 0000'0000  0000'0000
 		uint16_t ActionsHeld = 0; // 0000'0000  0000'0000 
 		uint16_t ActionsUp   = 0; // 0000'0000  0000'0000

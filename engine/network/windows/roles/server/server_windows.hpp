@@ -41,7 +41,7 @@ namespace pldn
 		void Send();
 
 		bool PollInputCommand(ClientInputCommand& command);
-		void QueueGameEvent(ClientGameEvent event);
+		void QueueGameEvent(GameEvent event);
 
 	private:
 		NetworkServer(const std::string& ipAddress, uint16_t port);
@@ -59,6 +59,6 @@ namespace pldn
 		std::array<std::optional<ClientConnection>, MAX_CLIENT_CONNECTIONS> m_connections = {};
 
 		std::queue<ClientInputCommand> m_incomingInputCommands = {};
-		std::queue<ClientGameEvent> m_outgoingGameEvents = {};
+		std::queue<GameEvent> m_outgoingGameEvents = {};
 	};
 }

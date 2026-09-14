@@ -45,7 +45,7 @@ namespace pldn
 		std::this_thread::sleep_for(std::chrono::seconds(5)); // Temporary prototype delay.
 		m_networkClient->ConnectToServer("127.0.0.1", 8080);
 
-		static double accumulatedTime = 0.0f;
+		double accumulatedTime = 0.0f;
 		std::chrono::time_point startTime = std::chrono::steady_clock::now();
 
 		while (!m_device->ShouldClose())
@@ -65,10 +65,10 @@ namespace pldn
 				m_networkClient->Receive();
 
 				/* QUEUE INCOMING COMMANDS */
-				GameEvent command;
-				while (m_networkClient->PollGameEvent(command))
+				GameEvent event;
+				while (m_networkClient->PollGameEvent(event))
 				{
-					m_gameWorld->QueueGameEvent(command);
+					m_gameWorld->QueueGameEvent(event);
 				}
 
 				/* GAME UPDATE */
@@ -112,7 +112,7 @@ namespace pldn
 		}
 
 		m_networkClient = new NetworkClient();
-		m_input = new CurrentInput(m_device);
+		m_input = new Input(m_device);
 		m_gameWorld = new GameWorldReplicated();
 		m_renderer = new Renderer();
 

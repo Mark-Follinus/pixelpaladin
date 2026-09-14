@@ -25,6 +25,8 @@ namespace pldn
 		GameWorldReplicated() = default;
 		~GameWorldReplicated();
 
+		void ApplyPlayerStateEvent(const GameEvent& event);
+
 	private:
 		friend class Engine;
 		friend class ClientEngine;
