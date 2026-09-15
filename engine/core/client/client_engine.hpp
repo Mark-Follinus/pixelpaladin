@@ -7,7 +7,7 @@ namespace pldn
 	class NetworkClient;
 	class Input;
 	class GameWorldReplicated;
-	class Renderer;
+	class RenderManager;
 
 	class ClientEngine
 	{
@@ -33,7 +33,7 @@ namespace pldn
 		NetworkClient*   m_networkClient = nullptr;
 		Input*					 m_input = nullptr;
 		GameWorldReplicated* m_gameWorld = nullptr;
-		Renderer*			  m_renderer = nullptr;
+		RenderManager*		  m_renderer = nullptr;
 	};
 
 }

@@ -42,7 +42,7 @@ namespace pldn
 		}
 
 		HostGame();
-		std::this_thread::sleep_for(std::chrono::seconds(5)); // Temporary prototype delay.
+		//std::this_thread::sleep_for(std::chrono::seconds(5)); // Temporary prototype delay.
 		m_networkClient->ConnectToServer("127.0.0.1", 8080);
 
 		double accumulatedTime = 0.0f;
@@ -114,7 +114,7 @@ namespace pldn
 		m_networkClient = new NetworkClient();
 		m_input = new Input(m_device);
 		m_gameWorld = new GameWorldReplicated();
-		m_renderer = new Renderer();
+		m_renderer = new RenderManager();
 
 		return true;
 	}

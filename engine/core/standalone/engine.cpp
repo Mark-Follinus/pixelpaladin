@@ -77,7 +77,7 @@ namespace pldn
 
 		m_input = new Input(m_device);
 
-		m_renderer = new Renderer();
+		m_renderer = new RenderManager();
 	}
 
 	void Engine::Shutdown()

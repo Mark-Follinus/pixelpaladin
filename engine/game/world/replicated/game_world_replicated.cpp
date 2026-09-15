@@ -69,8 +69,6 @@ namespace pldn
 		}
 
 		playerSlot->Position = { event.PositionX, event.PositionY };
-
-		printf("Player: %i (%f, %f)\n", playerSlot->ID, playerSlot->Position.x, playerSlot->Position.y);
 	}
 
 }

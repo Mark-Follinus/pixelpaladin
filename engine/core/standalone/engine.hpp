@@ -7,7 +7,7 @@ namespace pldn
 	class Device;
 	//class Networking;
 	class Input;
-	class Renderer;
+	class RenderManager;
 
 	class Engine
 	{
@@ -30,7 +30,7 @@ namespace pldn
 		Device* m_device = nullptr;
 		//Networking* m_networking = nullptr;
 		Input* m_input = nullptr;
-		Renderer * m_renderer = nullptr;
+		RenderManager * m_renderer = nullptr;
 	};
 
 } // namespace pldn

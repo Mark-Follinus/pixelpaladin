@@ -4,4 +4,4 @@
 // Will probably be done with macros????
 // For now we chilling with opengl...
 
-#include "opengl/renderer_opengl.hpp"
+#include "opengl/render_manager_opengl.hpp"
