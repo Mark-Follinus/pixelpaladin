@@ -9,9 +9,7 @@
 #include "input/commands/input_command.hpp"
 #include "game/constants/game_constants.hpp"
 #include "game/events/game_event.hpp"
-
-// -----------------
-#include "game/player_state.hpp"
+#include "game/game_objects/player_state.hpp"
 
 namespace pldn
 {

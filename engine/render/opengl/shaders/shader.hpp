@@ -18,12 +18,10 @@ namespace pldn
         void Bind() const;
         void Unbind() const;
 
-        unsigned int ID() const;
-
-        //void SetMatrix4(const char* name, const glm::mat4& value) {}
-        //void SetVector4(const char* name, const glm::vec4& value) {}
-        //void SetInt(const char* name, int value) {}
-
+        void SetMatrix4(const char* name, const glm::mat4& matrix);
+        // void SetVector4(const char* name, const glm::vec4& value) {}
+        // void SetInt(const char* name, int value) {}
+        
     private:
         unsigned int m_shaderProgramHandle = 0;
     };

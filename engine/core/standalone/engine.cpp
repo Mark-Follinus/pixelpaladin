@@ -55,7 +55,7 @@ namespace pldn
 			/* GAME UPDATE */
 
 			/* DRAW */
-			m_renderer->Draw();
+			//m_renderer->DrawScene();
 
 			/* END FRAME */
 			m_device->EndFrame();

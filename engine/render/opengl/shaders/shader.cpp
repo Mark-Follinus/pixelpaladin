@@ -6,6 +6,10 @@
 // GLFW & GLAD libraries
 #include <glad/glad.h>
 
+// GLM includes
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 namespace pldn
 {
 
@@ -25,11 +29,25 @@ namespace pldn
 	{
 		const char* vertexShaderSource =
 			"#version 460 core\n"
-			"layout (location = 0) in vec3 aPos;\n"
+			"\n"
+			"layout(location = 0) in vec3 aPosition;\n"
+			"\n"
+			"uniform mat4 uProjection;\n"
+			"uniform mat4 uView;\n"
+			"uniform mat4 uModel;\n"
+			"\n"
 			"void main()\n"
 			"{\n"
-			"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+			"	gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);\n"
 			"}\0";
+
+		//const char* vertexShaderSource =
+		//	"#version 460 core\n"
+		//	"layout (location = 0) in vec3 aPos;\n"
+		//	"void main()\n"
+		//	"{\n"
+		//	"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		//	"}\0";
 
 
 		const char* fragmentShaderSource =
@@ -110,6 +128,12 @@ namespace pldn
 	void Shader::Unbind() const
 	{
 		glUseProgram(0);
+	}
+
+	void Shader::SetMatrix4(const char* name, const glm::mat4& matrix)
+	{
+		const GLint location = glGetUniformLocation(m_shaderProgramHandle, name);
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 // ------------------------ 

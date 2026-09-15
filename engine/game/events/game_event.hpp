@@ -25,12 +25,6 @@ namespace pldn
 		float PositionY = 0.0f;
 	};
 
-	//struct ClientGameEvent
-	//{
-	//	ClientID RecipientClientID = INVALID_CLIENT_ID;
-	//	GameEvent Event = {};
-	//};
-
 } // namespace pldn
 
 

@@ -130,7 +130,7 @@ namespace pldn
 			}
 
 			player.State.Velocity = direction * MAX_PLAYER_SPEED;
-			player.State.Position += player.State.Velocity * deltaTime;
+			player.State.Transform.Position += player.State.Velocity * deltaTime;
 
 			player.CurrentInput.ActionsDown = 0;
 			player.CurrentInput.ActionsUp = 0;
@@ -152,8 +152,8 @@ namespace pldn
 			event.ID = playerSlot->State.ID;
 			event.Type = GameEventType::PlayerState;
 			event.ServerTick = m_serverTick;
-			event.PositionX = player.Position.x;
-			event.PositionY = player.Position.y;
+			event.PositionX = player.Transform.Position.x;
+			event.PositionY = player.Transform.Position.y;
 
 			m_outgoingGameEvents.push(std::move(event));
 		}

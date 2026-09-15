@@ -3,8 +3,9 @@
 // GLFW & GLAD libraries
 #include <glad/glad.h>
 
-// GLM Libraries
+// GLM libraries
 #include "glm/glm.hpp"
+#include <glm/ext/matrix_transform.hpp>
 
 namespace pldn
 {
@@ -26,6 +27,23 @@ namespace pldn
 // Public Methods
 // ------------------------
 
+	void Renderer2D::StartScene(const Camera2D& camera)
+	{
+		m_shader.Bind();
+		m_shader.SetMatrix4("uProjection", camera.Projection());
+		m_shader.SetMatrix4("uView", camera.View());
+	}
+
+	void Renderer2D::DrawScene()
+	{
+		DrawQuad(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::radians(45.0f));
+	}
+
+	void Renderer2D::EndScene()
+	{
+		m_shader.Unbind();
+	}
+
 	void Renderer2D::Initialize()
 	{
 		LazyTempSetup();
@@ -39,15 +57,6 @@ namespace pldn
 		m_initialized = true;
 	}
 
-	void Renderer2D::Draw()
-	{
-		m_shader.Bind();
-
-		LazyTempDrawQuad();
-
-		m_shader.Unbind();
-	}
-
 	void Renderer2D::Shutdown()
 	{
 
@@ -56,6 +65,20 @@ namespace pldn
 	bool Renderer2D::IsInitialized() const
 	{
 		return m_initialized;
+	}
+
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& scale, const float rotation)
+	{
+		glm::mat4 model{ 1.0f };
+		model = glm::translate(model, glm::vec3(position, 0.0f));
+		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(scale, 1.0f));
+
+		m_shader.SetMatrix4("uModel", model);
+
+		glBindVertexArray(m_quadVAO);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glBindVertexArray(0);
 	}
 
 // ------------------------
@@ -76,15 +99,6 @@ namespace pldn
 		glEnableVertexAttribArray(0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-
-	void Renderer2D::LazyTempDrawQuad()
-	{ 
-		glBindVertexArray(m_quadVAO);
-
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
 		glBindVertexArray(0);
 	}
 

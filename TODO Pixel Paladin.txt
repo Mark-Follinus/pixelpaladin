@@ -1,33 +1,23 @@
 TODO: Pixel Paladin
 
+INPUT
 > TODO: Revisit gamepad input after networking prototype is functional.
 > TODO: Decide whether RawMousePosition → MousePosition is supposed to be a frame snapshot and actually copy it.
 > TODO: Decide whether the wheel should represent cumulative position or per-frame delta.
-> TODO: Decide how the fuck I will handle disconnections.
 > TODO: Add Input mappings, probably read from a text file.
 
-
+NETWORK
 > TODO: Inside NetworkConnections eventually make the send and receive functions to not use memcpy and make it platform agnostic.
 > TODO: Inside the client & server classes serialization assumes matching endianness, struct layout, and compiler settings. Fix it.
 > TODO: Figure out how to handle input queues so they don't just keep expanded forever...
 > TODO: Inside NetworkServer figure out how to handle 
-
 > TODO: Add Client connect, client disconnect events. 
+> TODO: Eventually expend the game event to use std::variant. Currently it is a stand in for player state.
 
-----------------------------------------------------------------------------------------------------
+RENDERING + DEVICE
+> TODO: Allow dynamic resizing of the window inside device. Making sure that the renderer also is resized.
+> TODO: Clean up #includes, there are a lot of redundant ones.
+> TODO: Eventually make a game world rendering data context that can be passed to the renderer. So that renderer does not need to constantly check game world. 
 
-[DONE] 1. Convert physical input into a PlayerCommand. The game and server should never need to know what the Space key is.
-[DONE] 2. Serialize and deserialize that command. Add a packet type such as PlayerCommand. Execute it on the server.
-[DONE] 3. Initially, “gameplay” can just increment a position or print that an attack happened.
-4. Return one authoritative state update. Even something tiny like the resulting player position completes the loop.
-
-
-[DONE] 4b. Make a fixed step update for the client and server...
-5. Then refactor client/server responsibilities. Once the slice works, the natural boundaries will be much more obvious. A likely eventual structure is ClientEndpoint and ServerEndpoint, composed by Networking; a host can own both.
-6. Add separate build targets last. Make a headless server executable once there is actually client-only code worth excluding. Prefer separate CMake targets linked against shared game/network code, rather than scattering #ifdef SERVER_BUILD throughout the engine.
-
-
-----------------------------------------------------------------------------------------------------
-ALL HAIL KING JAVIDx9
-
-? Subnet masks, routing, 
+STANDALONE ENGINE
+> Eventually do a feature catch up.

@@ -85,7 +85,7 @@ namespace pldn
 			}
 
 			/* DRAW */
-			m_renderer->Draw();
+			m_renderer->DrawScene(*m_gameWorld);
 
 			/* END FRAME */
 			m_device->EndFrame();
@@ -115,6 +115,7 @@ namespace pldn
 		m_input = new Input(m_device);
 		m_gameWorld = new GameWorldReplicated();
 		m_renderer = new RenderManager();
+		m_renderer->Resize(static_cast<const unsigned int>(m_device->GetWidth()), static_cast<const unsigned int>(m_device->GetHeight()));
 
 		return true;
 	}

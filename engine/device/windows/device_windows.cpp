@@ -66,8 +66,10 @@ namespace pldn
         m_maxWidth = mode->width;
         m_maxHeight = mode->height;
 
-        m_width = m_maxWidth;
-        m_height = m_maxHeight;
+        //m_width = m_maxWidth;
+        //m_height = m_maxHeight;
+        m_width = 400;
+        m_height = 300;
 
         m_window = glfwCreateWindow(m_width, m_height, "Pixel Paladin", nullptr, nullptr);
 

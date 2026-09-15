@@ -68,7 +68,7 @@ namespace pldn
 			playerSlot->ID = event.ID;
 		}
 
-		playerSlot->Position = { event.PositionX, event.PositionY };
+		playerSlot->Transform.Position = { event.PositionX, event.PositionY };
 	}
 
 }
