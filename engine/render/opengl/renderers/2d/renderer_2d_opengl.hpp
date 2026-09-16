@@ -8,6 +8,11 @@
 
 namespace pldn
 {
+	// Forward declaration
+	class SpriteTransform;
+	class Texture2D;
+	class WorldTransform2D;
+
 	class Renderer2D
 	{
 	public:
@@ -22,14 +27,12 @@ namespace pldn
 		void Shutdown();
 
 		bool IsInitialized() const;
-
 		void DrawQuad(const glm::vec2& position, const glm::vec2& scale, const float rotation);
+		void DrawSprite(const Texture2D& texture, const SpriteTransform& spriteTransform, const WorldTransform2D& transform);
 
 	private:
 
 		void LazyTempSetup();
-
-
 		void DrawPlayers();
 
 	private:
@@ -40,12 +43,13 @@ namespace pldn
 		unsigned int m_quadVBO = 0;
 		unsigned int m_quadVAO = 0;
 
-		const float m_quad[12] =
+		const float m_quad[20] =
 		{
-			-0.5f, -0.5f, 0.0f,  // lower-left corner  
-			 0.5f, -0.5f, 0.0f,  // lower-right corner
-			 0.5f,  0.5f, 0.0f,  // upper-right corner
-			-0.5f,  0.5f, 0.0f   // upper-left corner
+			// Vertex Positions      // Texture Coordinates
+			- 0.5f, -0.5f, 0.0f,     0.0f, 0.0f, // lower-left corner 
+			  0.5f, -0.5f, 0.0f,     1.0f, 0.0f, // lower-right corner
+			  0.5f,  0.5f, 0.0f,     1.0f, 1.0f, // upper-right corner
+			 -0.5f,  0.5f, 0.0f,     0.0f, 1.0f  // upper-left corner
 		};
 
 	};

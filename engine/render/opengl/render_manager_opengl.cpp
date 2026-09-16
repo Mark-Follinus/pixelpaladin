@@ -2,6 +2,7 @@
 
 // Standard library includes
 #include <optional>
+#include <string>
 
 // GLFW & GLAD libraries
 #include <glad/glad.h>
@@ -12,6 +13,9 @@
 
 // Engine includes
 #include "game/world/replicated/game_world_replicated.hpp"
+
+#include "game/data/world_transform_2d.hpp"
+#include "data/sprite_2d.hpp"
 
 namespace pldn
 {
@@ -38,10 +42,20 @@ namespace pldn
 					continue;
 				}
 
-				m_renderer2D.DrawQuad(player->Transform.Position, glm::vec2(1.0f, 1.0f), glm::radians(player->Transform.Rotation));
+				SpriteTransform sprite;
+				sprite.PositionOffset = { 0.0f, 0.0f };
+				sprite.         Scale = { 1.0f, 1.0f };
+				sprite.RotationOffset = 0.0f;
+				sprite.   AtlasColumn = 0;
+				sprite.      AtlasRow = 2;
+				sprite.  AtlasColumns = 2;
+				sprite.     AtlasRows = 4;
+
+				m_renderer2D.DrawSprite(m_tempTexture, sprite, player->Transform);
+
+				//m_renderer2D.DrawQuad(player->Transform.Position, glm::vec2(1.0f, 1.0f), glm::radians(player->Transform.Rotation));
 			}
 
-			//m_renderer2D.DrawScene();
 			m_renderer2D.EndScene();
 		}
 
@@ -71,8 +85,7 @@ namespace pldn
 	RenderManager::RenderManager() 
 	{
 		m_renderer2D.Initialize();
-
-
+		m_tempTexture.Load("D:/GitHub/pixel-paladin/assets/sprites/testing/test_avatar.png");
 	}
 
 	RenderManager::~RenderManager() {}

@@ -14,14 +14,12 @@
 // Engine includes
 namespace pldn
 {
+
 	struct PlayerState
 	{
         ClientID ID = -1;
-
         glm::vec2 Velocity = {};
-
         WorldTransform2D Transform{};
-
         uint32_t LastProcessedInputSequence = 0;
 	};
 

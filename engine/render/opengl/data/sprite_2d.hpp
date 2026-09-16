@@ -8,18 +8,18 @@
 
 namespace pldn
 {
-    using TextureID = std::uint32_t;
+    using TextureID = unsigned int;
 
-    struct Sprite2D // basically sprite transform.
+    struct SpriteTransform
     {
-        TextureID Texture;
-
-        glm::vec2 Size{ 1.0f, 1.0f };
-        glm::vec2 Offset{ 0.0f, 0.0f };
-
+        glm::vec2 PositionOffset{ 0.0f, 0.0f };
+        glm::vec2 Scale{ 1.0f, 1.0f };
         float RotationOffset = 0.0f;
 
-        bool FlipX = false;
-        bool FlipY = false;
+        unsigned int AtlasColumn = 0;
+        unsigned int AtlasRow = 0;
+
+        unsigned int AtlasColumns = 1;
+        unsigned int AtlasRows = 1;
     };
 }
