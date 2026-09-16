@@ -21,6 +21,5 @@ int main()
 #elif PLDN_BUILD_MODE == 2
     pldn::ServerEngine engine;
 #endif
-
     engine.Run();
 }

@@ -84,6 +84,8 @@ namespace pldn
 				accumulatedTime -= TICK_INTERVAL.count();
 			}
 
+			m_renderer->UpdateAnimations(*m_gameWorld, deltaTime);
+
 			/* DRAW */
 			m_renderer->DrawScene(*m_gameWorld);
 
