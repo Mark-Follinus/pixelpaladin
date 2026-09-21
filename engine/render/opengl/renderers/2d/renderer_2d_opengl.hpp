@@ -8,10 +8,10 @@
 
 namespace pldn
 {
-	// Forward declaration
-	class SpriteTransform;
+	// Forward declarations
+	struct SpriteTransform;
+	struct WorldTransform2D;
 	class Texture2D;
-	class WorldTransform2D;
 
 	class Renderer2D
 	{

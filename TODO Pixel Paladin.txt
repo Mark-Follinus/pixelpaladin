@@ -10,14 +10,16 @@ NETWORK
 > TODO: Inside NetworkConnections eventually make the send and receive functions to not use memcpy and make it platform agnostic.
 > TODO: Inside the client & server classes serialization assumes matching endianness, struct layout, and compiler settings. Fix it.
 > TODO: Figure out how to handle input queues so they don't just keep expanded forever...
-> TODO: Inside NetworkServer figure out how to handle 
 > TODO: Add Client connect, client disconnect events. 
 > TODO: Eventually expend the game event to use std::variant. Currently it is a stand in for player state.
 
 RENDERING + DEVICE
 > TODO: Allow dynamic resizing of the window inside device. Making sure that the renderer also is resized.
+
+RENDERING
 > TODO: Clean up #includes, there are a lot of redundant ones.
-> TODO: Eventually make a game world rendering data context that can be passed to the renderer. So that renderer does not need to constantly check game world. 
+> TODO: Eventually make a game world rendering data context that can be passed to the renderer. So that renderer does not need to constantly check game world.
+> TODO: Figure out how animations & asset management will be handled. 
 
 STANDALONE ENGINE
 > Eventually do a feature catch up.

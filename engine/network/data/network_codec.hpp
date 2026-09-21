@@ -6,10 +6,10 @@
 #include <type_traits>
 
 // Engine includes
-#include "network_types.hpp"
-#include "packet.hpp"
 #include "input/commands/input_command.hpp"
 #include "game/events/game_event.hpp"
+#include "network_types.hpp"
+#include "packet.hpp"
 
 namespace pldn
 {
@@ -36,6 +36,25 @@ namespace pldn
         std::memcpy(packet.Payload.data(), &command, INPUT_COMMAND_SIZE_IN_BYTES);
 
         return packet;
+
+        /*
+            ByteWriter writer;
+
+            writer.WriteU32(command.SequenceNumber);
+            writer.WriteU32(command.ClientTick);
+            writer.WriteU16(command.ActionsDown);
+            writer.WriteU16(command.ActionsHeld);
+            writer.WriteU16(command.ActionsUp);
+            writer.WriteI8(command.MoveX);
+            writer.WriteI8(command.MoveY);
+
+            Packet packet{};
+            packet.Type = PacketType::InputCommand;
+            packet.Payload = writer.TakeBytes();
+
+            return packet;
+        */
+
     }
 
     inline bool DeserializeInputCommand(const Packet& packet, InputCommand& command)
@@ -48,6 +67,22 @@ namespace pldn
         std::memcpy(&command, packet.Payload.data(), INPUT_COMMAND_SIZE_IN_BYTES);
 
         return true;
+
+        /*
+            if (packet.Type != PacketType::InputCommand)
+            {
+                return false;
+            }
+
+            ByteReader reader(packet.Payload);
+
+            if (!reader.ReadU32(command.SequenceNumber) || !reader.ReadU32(command.ClientTick) || !reader.ReadU16(command.ActionsDown) || !reader.ReadU16(command.ActionsHeld) || !reader.ReadU16(command.ActionsUp) || !reader.ReadI8(command.MoveX) || !reader.ReadI8(command.MoveY))
+            {
+                return false;
+            }
+
+            return reader.IsFinished();
+        */
     }
 
 // ------------------------
