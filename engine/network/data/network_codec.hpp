@@ -1,27 +1,37 @@
 #pragma once
 
 // Standard library includes
+#include <concepts>
 #include <cstddef>
-#include <cstring>
+#include <cstdint>
 #include <type_traits>
+#include <utility>
+#include <span>
+#include <variant>
+#include <vector>
 
 // Engine includes
 #include "input/commands/input_command.hpp"
 #include "game/events/game_event.hpp"
+#include "network/binary_stream/byte_writer.hpp"
+#include "network/binary_stream/byte_reader.hpp"
 #include "network_types.hpp"
 #include "packet.hpp"
 
 namespace pldn
 {
-    // Compiler time variables
-    constexpr size_t INPUT_COMMAND_SIZE_IN_BYTES = sizeof(pldn::InputCommand);
-    constexpr size_t GAME_EVENT_SIZE_IN_BYTES = sizeof(pldn::GameEvent);
+    // Compiler time variables    
+    constexpr std::size_t INPUT_COMMAND_WIRE_SIZE_IN_BYTES = (2 * sizeof(std::uint32_t)) 
+                                                           + (3 * sizeof(std::uint16_t)) 
+                                                           + (2 * sizeof(std::int8_t));
+    static_assert(INPUT_COMMAND_WIRE_SIZE_IN_BYTES == 16);
 
-	static_assert(std::is_trivially_copyable_v<InputCommand>, "Input command is too complex to copy cleanly.");
-    static_assert(sizeof(InputCommand) == 16, "InputCommand wire layout changed.");
+    template<typename>
+    inline constexpr bool ALWAYS_FALSE = false;
 
-	static_assert(std::is_trivially_copyable_v<GameEvent>, "GameEvent is too complex to copy cleanly.");
-    static_assert(sizeof(GameEvent) == 16, "GameEvent wire layout changed.");
+    // Forward declarations
+    void WriteClientID(ByteWriter& writer, ClientID id);
+    bool ReadClientID(ByteReader& reader, ClientID& id);
 
 // ------------------------
 // Input Command
@@ -29,60 +39,48 @@ namespace pldn
 
     inline Packet SerializeInputCommand(const InputCommand& command)
     {
-        Packet packet{};
-            packet.Type = PacketType::InputCommand;
-            packet.Payload.resize(INPUT_COMMAND_SIZE_IN_BYTES);
+        ByteWriter byteWriter;
 
-        std::memcpy(packet.Payload.data(), &command, INPUT_COMMAND_SIZE_IN_BYTES);
+        byteWriter.WriteUInt(command.SequenceNumber);
+        byteWriter.WriteUInt(command.ClientTick);
+        byteWriter.WriteUInt(command.ActionsDown);
+        byteWriter.WriteUInt(command.ActionsHeld);
+        byteWriter.WriteUInt(command.ActionsUp);
+        byteWriter.WriteInt(command.MoveX);
+        byteWriter.WriteInt(command.MoveY);
+
+        Packet packet{};
+        packet.Type = PacketType::InputCommand;
+        packet.Payload = byteWriter.TakeBytes();
 
         return packet;
-
-        /*
-            ByteWriter writer;
-
-            writer.WriteU32(command.SequenceNumber);
-            writer.WriteU32(command.ClientTick);
-            writer.WriteU16(command.ActionsDown);
-            writer.WriteU16(command.ActionsHeld);
-            writer.WriteU16(command.ActionsUp);
-            writer.WriteI8(command.MoveX);
-            writer.WriteI8(command.MoveY);
-
-            Packet packet{};
-            packet.Type = PacketType::InputCommand;
-            packet.Payload = writer.TakeBytes();
-
-            return packet;
-        */
-
     }
 
     inline bool DeserializeInputCommand(const Packet& packet, InputCommand& command)
     {
-        if (packet.Type != PacketType::InputCommand || packet.Payload.size() != INPUT_COMMAND_SIZE_IN_BYTES)
+        if (packet.Type != PacketType::InputCommand || packet.Payload.size() != INPUT_COMMAND_WIRE_SIZE_IN_BYTES)
         {
             return false;
         }
 
-        std::memcpy(&command, packet.Payload.data(), INPUT_COMMAND_SIZE_IN_BYTES);
+        ByteReader byteReader(std::span<const std::byte>(packet.Payload.data(), packet.Payload.size()));
+        
+        InputCommand readInputCommand{};
 
+        if (!byteReader.ReadUInt(readInputCommand.SequenceNumber) 
+        || !byteReader.ReadUInt(readInputCommand.ClientTick) 
+        || !byteReader.ReadUInt(readInputCommand.ActionsDown) 
+        || !byteReader.ReadUInt(readInputCommand.ActionsHeld) 
+        || !byteReader.ReadUInt(readInputCommand.ActionsUp) 
+        || !byteReader.ReadInt(readInputCommand.MoveX) 
+        || !byteReader.ReadInt(readInputCommand.MoveY)
+        || !byteReader.IsAtEnd())
+        {
+            return false;
+        }
+
+        command = readInputCommand;
         return true;
-
-        /*
-            if (packet.Type != PacketType::InputCommand)
-            {
-                return false;
-            }
-
-            ByteReader reader(packet.Payload);
-
-            if (!reader.ReadU32(command.SequenceNumber) || !reader.ReadU32(command.ClientTick) || !reader.ReadU16(command.ActionsDown) || !reader.ReadU16(command.ActionsHeld) || !reader.ReadU16(command.ActionsUp) || !reader.ReadI8(command.MoveX) || !reader.ReadI8(command.MoveY))
-            {
-                return false;
-            }
-
-            return reader.IsFinished();
-        */
     }
 
 // ------------------------
@@ -91,24 +89,158 @@ namespace pldn
 
     inline Packet SerializeGameEvent(const GameEvent& event)
     {
-        Packet packet{};
-            packet.Type = PacketType::GameEvent;
-            packet.Payload.resize(GAME_EVENT_SIZE_IN_BYTES);
+        ByteWriter byteWriter;
 
-        std::memcpy(packet.Payload.data(), &event, GAME_EVENT_SIZE_IN_BYTES);
+        std::visit(
+            [&byteWriter](const auto& concreteEvent)
+            {
+                using Event = std::remove_cvref_t<decltype(concreteEvent)>;
+
+                if constexpr (std::same_as<Event, std::monostate>)
+                {
+                    byteWriter.WriteUInt(static_cast<std::uint8_t>(GameEventType::Invalid));
+                }
+                else if constexpr (std::same_as<Event, PlayerJoinedEvent>)
+                {
+                    byteWriter.WriteUInt(static_cast<std::uint8_t>(GameEventType::PlayerJoined));
+
+                    WriteClientID(byteWriter, concreteEvent.ID);
+                    byteWriter.WriteFloat(concreteEvent.PositionX);
+                    byteWriter.WriteFloat(concreteEvent.PositionY);
+                }
+                else if constexpr (std::same_as<Event, PlayerLeftEvent>)
+                {
+                    byteWriter.WriteUInt(static_cast<std::uint8_t>(GameEventType::PlayerLeft));
+
+                    WriteClientID(byteWriter, concreteEvent.ID);
+                }
+                else if constexpr (std::same_as<Event, PlayerStateEvent>)
+                {
+                    byteWriter.WriteUInt(static_cast<std::uint8_t>(GameEventType::PlayerState));
+
+                    WriteClientID(byteWriter, concreteEvent.ID);
+                    byteWriter.WriteUInt(concreteEvent.ServerTick);
+                    byteWriter.WriteFloat(concreteEvent.PositionX);
+                    byteWriter.WriteFloat(concreteEvent.PositionY);
+                }
+                else
+                {
+                    static_assert(ALWAYS_FALSE<Event>, "GameEvent alternative has no serializer.");
+                }
+            },
+        event);
+
+        Packet packet{};
+        packet.Type = PacketType::GameEvent;
+        packet.Payload = byteWriter.TakeBytes();
 
         return packet;
     }
 
     inline bool DeserializeGameEvent(const Packet& packet, GameEvent& event)
     {
-        if (packet.Type != PacketType::GameEvent || packet.Payload.size() != GAME_EVENT_SIZE_IN_BYTES)
+        if (packet.Type != PacketType::GameEvent)
         {
             return false;
         }
 
-        std::memcpy(&event, packet.Payload.data(), GAME_EVENT_SIZE_IN_BYTES);
+        ByteReader byteReader(std::span<const std::byte>(packet.Payload.data(), packet.Payload.size()));
 
+        std::uint8_t encodedType = 0;
+
+        if (!byteReader.ReadUInt(encodedType))
+        {
+            return false;
+        }
+
+        GameEvent eventDecoded{};
+
+        switch (static_cast<GameEventType>(encodedType))
+        {
+            case GameEventType::Invalid:
+            {
+                eventDecoded = std::monostate{};
+                break;
+            }
+            case GameEventType::PlayerJoined:
+            {
+                PlayerJoinedEvent eventJoined{};
+
+                if (!ReadClientID(byteReader, eventJoined.ID) 
+                    || !byteReader.ReadFloat(eventJoined.PositionX) 
+                    || !byteReader.ReadFloat(eventJoined.PositionY))
+                {
+                    return false;
+                }
+
+                eventDecoded = eventJoined;
+                break;
+            }
+            case GameEventType::PlayerLeft:
+            {
+                PlayerLeftEvent eventLeft{};
+
+                if (!ReadClientID(byteReader, eventLeft.ID))
+                {
+                    return false;
+                }
+
+                eventDecoded = eventLeft;
+                break;
+            }
+
+            case GameEventType::PlayerState:
+            {
+                PlayerStateEvent eventPlayerState{};
+
+                if (!ReadClientID(byteReader, eventPlayerState.ID) 
+                    || !byteReader.ReadUInt(eventPlayerState.ServerTick) 
+                    || !byteReader.ReadFloat(eventPlayerState.PositionX) 
+                    || !byteReader.ReadFloat(eventPlayerState.PositionY))
+                {
+                    return false;
+                }
+
+                eventDecoded = eventPlayerState;
+                break;
+            }
+
+            default:
+            {
+                // Unknown event type.
+                return false;
+            }
+        }
+
+        if (!byteReader.IsAtEnd())
+        {
+            // The event contained unexpected trailing data.
+            return false;
+        }
+
+        event = std::move(eventDecoded);
+        return true;
+    }
+
+// ------------------------
+// Helper Functions
+// ------------------------ 
+
+    inline void WriteClientID(ByteWriter& writer, ClientID id)
+    {
+        writer.WriteInt(static_cast<std::int8_t>(id));
+    }
+
+    inline bool ReadClientID(ByteReader& reader, ClientID& id)
+    {
+        std::int8_t encodedID = 0;
+
+        if (!reader.ReadInt(encodedID))
+        {
+            return false;
+        }
+
+        id = static_cast<ClientID>(encodedID);
         return true;
     }
 }

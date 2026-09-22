@@ -33,7 +33,7 @@ namespace pldn
 
 		void ProcessInputCommands();
 		void MovePlayers(const float deltaTime);
-		void GenerateGameEvents();
+		void GenerateContinuousGameEvents(); // Game events that should be send each tick (stuff like player positions)
 
 	private:
 		friend class Engine;

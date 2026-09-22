@@ -21,7 +21,7 @@ namespace pldn
 		// ...
 
 		// Continuous state replication is generated at the end of the tick. (Every tick send event)
-		GenerateGameEvents();
+		GenerateContinuousGameEvents();
 
 		m_serverTick++;
 	}
@@ -95,15 +95,6 @@ namespace pldn
 
 			player.State.LastProcessedInputSequence = command.SequenceNumber;
 			player.CurrentInput = command;
-
-
-			// Once attacks matter, inputs can be perserved like this in the case of multiple inputs being received in the same tick.
-			//player.CurrentInput.ActionsDown |= command.ActionsDown;
-			//player.CurrentInput.ActionsUp |= command.ActionsUp;
-
-			//player.CurrentInput.ActionsHeld = command.ActionsHeld;
-			//player.CurrentInput.MoveX = command.MoveX;
-			//player.CurrentInput.MoveY = command.MoveY;
 		}
 	}
 
@@ -137,7 +128,7 @@ namespace pldn
 		}
 	}
 
-	void GameWorldAuthoritative::GenerateGameEvents()
+	void GameWorldAuthoritative::GenerateContinuousGameEvents()
 	{
 		for (const std::optional<PlayerStateAuthoritative>& playerSlot : m_players)
 		{
@@ -148,14 +139,13 @@ namespace pldn
 
 			const PlayerState& player = playerSlot->State;
 
-			GameEvent event{};
-			event.ID = playerSlot->State.ID;
-			event.Type = GameEventType::PlayerState;
-			event.ServerTick = m_serverTick;
-			event.PositionX = player.Transform.Position.x;
-			event.PositionY = player.Transform.Position.y;
+			PlayerStateEvent event{};
+				event.ID = playerSlot->State.ID;
+				event.ServerTick = m_serverTick;
+				event.PositionX = player.Transform.Position.x;
+				event.PositionY = player.Transform.Position.y;
 
-			m_outgoingGameEvents.push(std::move(event));
+			m_outgoingGameEvents.push(GameEvent{event});
 		}
 	}
 

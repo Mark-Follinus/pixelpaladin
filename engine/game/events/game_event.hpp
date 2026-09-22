@@ -2,28 +2,31 @@
 
 // Standard library includes
 #include <cstdint>
+#include <variant>
 
 // Engine includes
 #include "network/data/network_types.hpp"
+#include "player_events.hpp"
 
 namespace pldn
 {
-	enum class GameEventType : int8_t
+	enum class GameEventType : std::uint8_t
 	{
 		Invalid = 0,
-		PlayerState = 1
+		PlayerJoined = 1,
+		PlayerLeft = 2,
+		PlayerState = 3
 	};
 
-	struct GameEvent
-	{
-		GameEventType Type = GameEventType::Invalid;
+	using GameEvent = std::variant
+	<
+		std::monostate, 
+		
+		PlayerJoinedEvent, 
+		PlayerLeftEvent, 
+		PlayerStateEvent
+	>;
 
-		ClientID ID = INVALID_CLIENT_ID;
-		uint32_t ServerTick = 0;
-
-		float PositionX = 0.0f;
-		float PositionY = 0.0f;
-	};
 
 } // namespace pldn
 

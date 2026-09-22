@@ -16,7 +16,7 @@ namespace pldn
 	{
 
 	public:
-		void Update(const float deltaTime);
+		void Update(const float /* deltaTime */);
 		void QueueGameEvent(GameEvent command);
 		const std::array<std::optional<PlayerState>, MAX_PLAYERS_ALLOWED>& GetPlayers() const { return m_players; }
 
@@ -24,7 +24,7 @@ namespace pldn
 		GameWorldReplicated() = default;
 		~GameWorldReplicated();
 
-		void ApplyPlayerStateEvent(const GameEvent& event);
+		void ApplyPlayerStateEvent(const PlayerStateEvent& event);
 
 	private:
 		friend class Engine;

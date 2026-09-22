@@ -3,6 +3,7 @@
 // Standard library includes
 #include <cstdio>
 #include <utility>
+#include <variant>
 
 namespace pldn
 {
@@ -11,23 +12,20 @@ namespace pldn
 // Public Methods
 // ------------------------
 
-	void GameWorldReplicated::Update(const float deltaTime)
+	void GameWorldReplicated::Update(const float /* deltaTime */)
 	{
 		while (!m_incomingGameEvents.empty())
 		{
 			GameEvent event = std::move(m_incomingGameEvents.front());
 			m_incomingGameEvents.pop();
 
-			switch (event.Type)
+			const PlayerStateEvent* playerStateEvent = std::get_if<PlayerStateEvent>(&event);
+			if (playerStateEvent == nullptr)
 			{
-				case GameEventType::PlayerState:
-				{
-					ApplyPlayerStateEvent(event);
-					break;
-				}
-
-				default: break;
+				continue;
 			}
+
+			ApplyPlayerStateEvent(*playerStateEvent);
 		}
 	}
 
@@ -49,7 +47,7 @@ namespace pldn
 // Private Methods
 // ------------------------
 
-	void GameWorldReplicated::ApplyPlayerStateEvent(const GameEvent& event)
+	void GameWorldReplicated::ApplyPlayerStateEvent(const PlayerStateEvent& event)
 	{
 		if (event.ID < 0 || static_cast<std::size_t>(event.ID) >= m_players.size())
 		{
