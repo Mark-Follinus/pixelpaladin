@@ -11,11 +11,14 @@
 #include <WinSock2.h>
 
 // Engine includes
-#include "game/events/game_event.hpp"
-#include "input/commands/input_command.hpp"
 #include "network/data/network_types.hpp"
 #include "network/data/network_config.hpp"
 #include "network/windows/connection/connection_windows.hpp"
+
+// Engine event & command includes
+#include "input/commands/input_command.hpp"
+#include "network/events/connection_events.hpp"
+#include "game/events/game_event.hpp"
 
 // Compile time variables
 constexpr size_t MAX_CLIENT_CONNECTIONS = 4;
@@ -40,7 +43,9 @@ namespace pldn
 		void Receive();
 		void Send();
 
+		bool PollConnectionChange(ClientConnectionChangeEvent& change);
 		bool PollInputCommand(ClientInputCommand& command);
+
 		void QueueGameEvent(GameEvent event);
 
 	private:
@@ -58,6 +63,7 @@ namespace pldn
 		SOCKET m_listeningSocket = INVALID_SOCKET;
 		std::array<std::optional<ClientConnection>, MAX_CLIENT_CONNECTIONS> m_connections = {};
 
+		std::queue<ClientConnectionChangeEvent> m_incomingConnectionEvents;
 		std::queue<ClientInputCommand> m_incomingInputCommands = {};
 		std::queue<GameEvent> m_outgoingGameEvents = {};
 	};

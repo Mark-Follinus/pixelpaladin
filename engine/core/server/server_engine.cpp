@@ -48,17 +48,27 @@ namespace pldn
 			/* NETWORK RECEIVE */
 			m_networkServer->Receive();
 
-			/* QUEUE INCOMING INPUTS */
+			/* CONNECTION CHANGE QUEUEING */
+			ClientConnectionChangeEvent clientConnection{};
+			while (m_networkServer->PollConnectionChange(clientConnection))
+			{
+				m_gameWorld->QueueConnectionChange(clientConnection);
+			}
+
+			/* INPUT QUEUING */
 			ClientInputCommand clientInput{};
 			while (m_networkServer->PollInputCommand(clientInput))
 			{
 				m_gameWorld->QueueInputCommand(std::move(clientInput));
 			}
 
-			/* UPDATE WORLD */
+			/* CONNECTION PROCESSING */
+			/* INPUT PROCESSING */
+			/* SIMULATION */
+			/* GAME EVENT GENERATION */
 			m_gameWorld->Update(static_cast<float>(TICK_INTERVAL.count()));
 
-			/* QUEUE OUTGOING GAME COMMANDS */
+			/* GAME EVENT QUEUING */
 			GameEvent event{};
 			while (m_gameWorld->PollGameEvent(event))
 			{

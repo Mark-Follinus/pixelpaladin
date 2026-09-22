@@ -8,7 +8,7 @@
 // Engine includes
 #include "game/constants/game_constants.hpp"
 #include "game/events/game_event.hpp"
-#include "game/game_objects/player_state.hpp"
+#include "game/replicated/player_state.hpp"
 
 namespace pldn
 {
@@ -25,6 +25,8 @@ namespace pldn
 		~GameWorldReplicated();
 
 		void ApplyPlayerStateEvent(const PlayerStateEvent& event);
+		void ApplyPlayerJoinedEvent(const PlayerJoinedEvent& event);
+		void ApplyPlayerDisconnectEvent(const PlayerDisconnectEvent& event);
 
 	private:
 		friend class Engine;

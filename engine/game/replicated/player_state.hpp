@@ -9,7 +9,7 @@
 // Engine includes
 #include "input/commands/input_command.hpp"
 #include "network/data/network_types.hpp"
-#include "game/data/world_transform_2d.hpp"
+#include "game/components/world_transform_2d.hpp"
 
 // Engine includes
 namespace pldn

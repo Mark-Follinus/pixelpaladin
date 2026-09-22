@@ -12,18 +12,23 @@ namespace pldn
 
 	void GameWorldAuthoritative::Update(const float deltaTime)
 	{
+		ProcessConnectionEvents(); // Clients joining or leaving.
+
 		ProcessInputCommands();
 
-		// Continous game systems
 		MovePlayers(deltaTime);
+		// ResolvePlayerActions();
+		// ResolveCollisions();
 
-		// Discrete game systems (will manaully add events to the queue, if something happens)
-		// ...
-
-		// Continuous state replication is generated at the end of the tick. (Every tick send event)
-		GenerateContinuousGameEvents();
+		// Continuous state replication is generated at the end of the tick. (Every tick send event).
+		GeneratePlayerStateGameEvents();
 
 		m_serverTick++;
+	}
+
+	void GameWorldAuthoritative::QueueConnectionChange(ClientConnectionChangeEvent event)
+	{
+		m_incomingConnectionEvents.push(event);
 	}
 
 	void GameWorldAuthoritative::QueueInputCommand(ClientInputCommand command) 
@@ -62,6 +67,39 @@ namespace pldn
 // Private Methods
 // ------------------------
 
+	void GameWorldAuthoritative::ProcessConnectionEvents()
+	{
+		while (!m_incomingConnectionEvents.empty())
+		{
+			const ClientConnectionChangeEvent changeEvent = m_incomingConnectionEvents.front();
+
+			m_incomingConnectionEvents.pop();
+
+			switch (changeEvent.Type)
+			{
+				case ClientConnectionChangeEventType::Connected:
+				{
+					if (AddPlayer(changeEvent.ID))
+					{
+						BroadcastPlayerJoinedEvents();
+					}
+
+					break;
+				}
+
+				case ClientConnectionChangeEventType::Disconnected:
+				{
+					if (RemovePlayer(changeEvent.ID))
+					{
+						BroadcastPlayerDisconnectEvent(changeEvent.ID);
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
 	void GameWorldAuthoritative::ProcessInputCommands()
 	{
 		while (!m_incomingInputCommands.empty())
@@ -81,8 +119,8 @@ namespace pldn
 
 			if (!slot.has_value())
 			{
-				slot.emplace();
-				slot->State.ID = clientID;
+				// Stale input from a disconnected client, or input received before joining completed.
+				continue;
 			}
 
 			PlayerStateAuthoritative& player = *slot;
@@ -128,7 +166,73 @@ namespace pldn
 		}
 	}
 
-	void GameWorldAuthoritative::GenerateContinuousGameEvents()
+	bool GameWorldAuthoritative::AddPlayer(ClientID id)
+	{
+		if (id < 0 || static_cast<std::size_t>(id) >= m_players.size())
+		{
+			return false;
+		}
+
+		auto& playerSlot = m_players[static_cast<std::size_t>(id)];
+
+		if (playerSlot.has_value())
+		{
+			return false;
+		}
+
+		playerSlot.emplace();
+		playerSlot->State.ID = id;
+
+		return true;
+	}
+
+	bool GameWorldAuthoritative::RemovePlayer(ClientID id)
+	{
+		if (id < 0 || static_cast<std::size_t>(id) >= m_players.size())
+		{
+			return false;
+		}
+
+		auto& playerSlot = m_players[static_cast<std::size_t>(id)];
+
+		if (!playerSlot.has_value())
+		{
+			return false;
+		}
+
+		playerSlot.reset();
+		return true;
+	}
+
+	void GameWorldAuthoritative::BroadcastPlayerJoinedEvents()
+	{
+		for (const auto& playerSlot : m_players)
+		{
+			if (!playerSlot.has_value())
+			{
+				continue;
+			}
+
+			const PlayerState& player = playerSlot->State;
+
+			PlayerJoinedEvent event{};
+			event.ID = player.ID;
+			event.PositionX = player.Transform.Position.x;
+			event.PositionY = player.Transform.Position.y;
+
+			m_outgoingGameEvents.push(GameEvent{ event });
+		}
+	}
+
+	void GameWorldAuthoritative::BroadcastPlayerDisconnectEvent(ClientID id)
+	{
+		PlayerDisconnectEvent disconnectEvent{};
+		disconnectEvent.ID = id;
+
+		m_outgoingGameEvents.push(GameEvent{ disconnectEvent });
+	}
+
+	void GameWorldAuthoritative::GeneratePlayerStateGameEvents()
 	{
 		for (const std::optional<PlayerStateAuthoritative>& playerSlot : m_players)
 		{

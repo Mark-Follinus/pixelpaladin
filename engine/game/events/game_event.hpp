@@ -23,7 +23,7 @@ namespace pldn
 		std::monostate, 
 		
 		PlayerJoinedEvent, 
-		PlayerLeftEvent, 
+		PlayerDisconnectEvent, 
 		PlayerStateEvent
 	>;
 

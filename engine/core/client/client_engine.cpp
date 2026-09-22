@@ -42,7 +42,6 @@ namespace pldn
 		}
 
 		HostGame();
-		//std::this_thread::sleep_for(std::chrono::seconds(5)); // Temporary prototype delay.
 		m_networkClient->ConnectToServer("127.0.0.1", 8080);
 
 		double accumulatedTime = 0.0f;

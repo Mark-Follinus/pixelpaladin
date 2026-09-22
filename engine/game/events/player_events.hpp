@@ -17,7 +17,7 @@ namespace pldn
         float PositionY = 0.0f;
     };
 
-    struct PlayerLeftEvent
+    struct PlayerDisconnectEvent
     {
         ClientID ID = INVALID_CLIENT_ID;
     };

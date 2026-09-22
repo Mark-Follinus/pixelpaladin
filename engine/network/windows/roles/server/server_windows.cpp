@@ -107,6 +107,7 @@ namespace pldn
             client.reset(); // Destroys its Connection and closes its socket.
         }
 
+        m_incomingConnectionEvents = {};
         m_incomingInputCommands = {};
         m_outgoingGameEvents = {};
     }
@@ -161,7 +162,11 @@ namespace pldn
             // Poll final packets before removing a closed connection.
             if (!client->ConnectedPeer.IsConnected())
             {
+                const ClientID disconnectedID = client->ID;
+
                 client.reset();
+
+                m_incomingConnectionEvents.push({ClientConnectionChangeEventType::Disconnected, disconnectedID});
             }
         }
 
@@ -194,6 +199,19 @@ namespace pldn
                 client->ConnectedPeer.FlushPackets();
             }
         }
+    }
+
+    bool NetworkServer::PollConnectionChange(ClientConnectionChangeEvent& change)
+    {
+        if (m_incomingConnectionEvents.empty())
+        {
+            return false;
+        }
+
+        change = m_incomingConnectionEvents.front();
+        m_incomingConnectionEvents.pop();
+
+        return true;
     }
 
 	bool NetworkServer::PollInputCommand(ClientInputCommand& command) 
@@ -282,6 +300,8 @@ namespace pldn
         }
 
         potentialEmptyConnection->emplace(clientIndex, serverToClientSocket);
+        m_incomingConnectionEvents.push({ ClientConnectionChangeEventType::Connected, clientIndex });
+
         std::printf("Server: New client connected!\n");
     }
 }

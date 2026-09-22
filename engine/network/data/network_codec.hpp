@@ -108,7 +108,7 @@ namespace pldn
                     byteWriter.WriteFloat(concreteEvent.PositionX);
                     byteWriter.WriteFloat(concreteEvent.PositionY);
                 }
-                else if constexpr (std::same_as<Event, PlayerLeftEvent>)
+                else if constexpr (std::same_as<Event, PlayerDisconnectEvent>)
                 {
                     byteWriter.WriteUInt(static_cast<std::uint8_t>(GameEventType::PlayerLeft));
 
@@ -178,7 +178,7 @@ namespace pldn
             }
             case GameEventType::PlayerLeft:
             {
-                PlayerLeftEvent eventLeft{};
+                PlayerDisconnectEvent eventLeft{};
 
                 if (!ReadClientID(byteReader, eventLeft.ID))
                 {

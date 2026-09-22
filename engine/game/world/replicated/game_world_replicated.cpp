@@ -19,13 +19,18 @@ namespace pldn
 			GameEvent event = std::move(m_incomingGameEvents.front());
 			m_incomingGameEvents.pop();
 
-			const PlayerStateEvent* playerStateEvent = std::get_if<PlayerStateEvent>(&event);
-			if (playerStateEvent == nullptr)
+			if (const auto* state = std::get_if<PlayerStateEvent>(&event))
 			{
-				continue;
+				ApplyPlayerStateEvent(*state);
 			}
-
-			ApplyPlayerStateEvent(*playerStateEvent);
+			else if (const auto* joinedEvent = std::get_if<PlayerJoinedEvent>(&event))
+			{
+				ApplyPlayerJoinedEvent(*joinedEvent);
+			}
+			else if (const auto* disconnectEvent = std::get_if<PlayerDisconnectEvent>(&event))
+			{
+				ApplyPlayerDisconnectEvent(*disconnectEvent);
+			}
 		}
 	}
 
@@ -62,11 +67,41 @@ namespace pldn
 
 		if (!playerSlot.has_value())
 		{
-			playerSlot.emplace();
-			playerSlot->ID = event.ID;
+			// Stale player state from a disconnected client, or input received before joining completed.
+			return;
 		}
 
 		playerSlot->Transform.Position = { event.PositionX, event.PositionY };
+	}
+
+	void GameWorldReplicated::ApplyPlayerJoinedEvent(const PlayerJoinedEvent& event)
+	{
+		if (event.ID < 0 || static_cast<std::size_t>(event.ID) >= m_players.size())
+		{
+			return;
+		}
+
+		auto& playerSlot = m_players[static_cast<std::size_t>(event.ID)];
+
+		// Makes duplicate join events harmless.
+		if (playerSlot.has_value())
+		{
+			return;
+		}
+
+		playerSlot.emplace();
+		playerSlot->ID = event.ID;
+		playerSlot->Transform.Position = { event.PositionX, event.PositionY };
+	}
+
+	void GameWorldReplicated::ApplyPlayerDisconnectEvent(const PlayerDisconnectEvent& event)
+	{
+		if (event.ID < 0 || static_cast<std::size_t>(event.ID) >= m_players.size())
+		{
+			return;
+		}
+
+		m_players[static_cast<std::size_t>(event.ID)].reset();
 	}
 
 }

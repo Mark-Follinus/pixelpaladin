@@ -14,7 +14,7 @@
 // Engine includes
 #include "game/world/replicated/game_world_replicated.hpp"
 
-#include "game/data/world_transform_2d.hpp"
+#include "game/components/world_transform_2d.hpp"
 #include "data/sprite_2d.hpp"
 
 namespace pldn

@@ -11,7 +11,7 @@
 #include "render/opengl/textures/texture_2d.hpp"
 
 #include "render/opengl/data/sprite_2d.hpp"
-#include "game/data/world_transform_2d.hpp"
+#include "game/components/world_transform_2d.hpp"
 
 namespace pldn
 {
