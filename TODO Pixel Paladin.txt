@@ -1,5 +1,10 @@
 TODO: Pixel Paladin
 
+HIGH PRIORITY
+> Create an ECS system, and a scene representation.
+> Create an asset management system.
+> Switch to C++23, Add CMAKE files.
+
 INPUT
 > TODO: Revisit gamepad input after networking prototype is functional.
 > TODO: Decide whether RawMousePosition → MousePosition is supposed to be a frame snapshot and actually copy it.
