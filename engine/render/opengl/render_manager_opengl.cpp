@@ -1,6 +1,9 @@
 #include "render_manager_opengl.hpp"
 
 // Standard library includes
+#include <cstddef>
+#include <initializer_list>
+#include <cstdint>
 #include <optional>
 #include <string>
 
@@ -15,10 +18,18 @@
 #include "game/world/replicated/game_world_replicated.hpp"
 
 #include "game/components/world_transform_2d.hpp"
-#include "data/sprite_2d.hpp"
+#include "render/sprites/sprite_2d.hpp"
 
 namespace pldn
 {
+// ------------------------
+// Local Functions
+// ------------------------
+
+	constexpr std::size_t ToIndex(const PlayerAnimationSpriteID id) noexcept
+	{
+		return static_cast<std::size_t>(id);
+	}
 
 // ------------------------
 // Public Methods
@@ -32,19 +43,40 @@ namespace pldn
 		{
 			if (!players[i].has_value())
 			{
-				// Reset state so a future player reusing this
-				// slot doesn't inherit the old animation.
-				m_playerAnimations[i] = PlayerAnimationState{};
-
+				m_playerVisuals[i].reset();
 				continue;
 			}
 
-			const PlayerState& player = players[i].value();
-			PlayerAnimationState& animation = m_playerAnimations[i];
-			UpdatePlayerAnimation(animation, player.Transform.Position, deltaTime);
+			std::optional<PlayerVisual>& visualSlot = m_playerVisuals[i];
+
+			if (!visualSlot.has_value())
+			{
+				PlayerVisual& newVisual = visualSlot.emplace();
+
+				newVisual.Sprite.PositionOffset = { 0.0f, 0.0f };
+				newVisual.Sprite.Scale = { 1.0f, 1.0f };
+				newVisual.Sprite.RotationOffset = 0.0f;
+				newVisual.Sprite.AtlasColumns = 2;
+				newVisual.Sprite.AtlasRows = 4;
+			}
+
+			const PlayerState& state = players[i]->State;
+			PlayerVisual& visual = *visualSlot;
+
+			const AnimationClip& selectedClip = SelectPlayerAnimation(state);
+
+			visual.Animator.Play(&selectedClip);
+			visual.Animator.Update(deltaTime);
+
+			const SpriteFrame* currentFrame = visual.Animator.GetCurrentFrame();
+
+			if (currentFrame != nullptr)
+			{
+				visual.Sprite.AtlasColumn = currentFrame->Column;
+				visual.Sprite.AtlasRow = currentFrame->Row;
+			}
 		}
 	}
-
 
 	void RenderManager::DrawScene(const GameWorldReplicated& world)
 	{
@@ -52,28 +84,26 @@ namespace pldn
 		RenderBeginFrame();
 
 		/* DRAW WORLD*/
-
 		if (m_renderer2D.IsInitialized())
 		{
 			m_renderer2D.StartScene(m_worldCamera);
 
-			for (std::size_t i = 0; i < world.GetPlayers().size(); ++i)
+			const auto& players = world.GetPlayers();
+
+			for (std::size_t i = 0; i < players.size(); ++i)
 			{
-				if (!world.GetPlayers()[i].has_value())
+				const auto& playerSlot = players[i];
+				const auto& visualSlot = m_playerVisuals[i];
+
+				if (!playerSlot.has_value() || !visualSlot.has_value())
 				{
 					continue;
 				}
 
-				SpriteTransform sprite;
-				sprite.PositionOffset = { 0.0f, 0.0f };
-				sprite.         Scale = { 1.0f, 1.0f };
-				sprite.RotationOffset = 0.0f;
-				sprite.   AtlasColumn = m_playerAnimations[i].Frame;
-				sprite.      AtlasRow = static_cast<unsigned int>(m_playerAnimations[i].Direction);
-				sprite.  AtlasColumns = 2;
-				sprite.     AtlasRows = 4;
+				const PlayerCharacter& player = *playerSlot;
+				const PlayerVisual& visual = *visualSlot;
 
-				m_renderer2D.DrawSprite(m_tempTexture, sprite, world.GetPlayers()[i]->Transform);
+				m_renderer2D.DrawSprite(m_tempTexture, visual.Sprite, player.State.Transform);
 			}
 
 			m_renderer2D.EndScene();
@@ -104,6 +134,8 @@ namespace pldn
 
 	RenderManager::RenderManager() 
 	{
+		InitializePlayerAnimationClips();
+
 		m_renderer2D.Initialize();
 		m_tempTexture.Load("D:/GitHub/pixel-paladin/assets/sprites/testing/test_avatar.png");
 	}
@@ -126,64 +158,61 @@ namespace pldn
 
 	}
 
-	void RenderManager::UpdatePlayerAnimation(PlayerAnimationState& animation, const glm::vec2& position, float deltaTime)
+	void RenderManager::InitializePlayerAnimationClips()
 	{
-		if (!animation.Initialized)
-		{
-			animation.PreviousPosition = position;
-			animation.Initialized = true;
-			return;
-		}
-
-		const glm::vec2 movement = position - animation.PreviousPosition;
-		animation.PreviousPosition = position;
-		constexpr float movementEpsilon = 0.0001f;
-		const bool positionChanged = glm::dot(movement, movement) > movementEpsilon * movementEpsilon;
-
-		if (positionChanged)
-		{
-			animation.TimeSinceMovement = 0.0f;
-
-			if (std::abs(movement.x) > std::abs(movement.y))
-			{
-				animation.Direction = movement.x > 0.0f ? SpriteDirection::Right : SpriteDirection::Left;
-			}
-			else
-			{
-				animation.Direction = movement.y > 0.0f ? SpriteDirection::Up : SpriteDirection::Down;
-			}
-		}
-		else
-		{
-			animation.TimeSinceMovement += deltaTime;
-		}
-
-		/*
-		 * The world may only receive a new position during fixed
-		 * ticks, while rendering can happen more frequently.
-		 * Therefore, don't declare the player idle after one
-		 * render frame without movement.
-		 */
-		constexpr float movementTimeout = 0.1f;
-		const bool walking = animation.TimeSinceMovement < movementTimeout;
 		constexpr float frameDuration = 0.2f;
-
-		if (walking)
+		const auto SetClip = [this, frameDuration](const PlayerAnimationSpriteID id, const std::initializer_list<SpriteFrame> frames)
 		{
-			animation.FrameTimer += deltaTime;
+			AnimationClip& clip = m_playerAnimationClips[ToIndex(id)];
+			clip.Frames.assign(frames.begin(), frames.end());
+			clip.FrameDurationSeconds = frameDuration;
+			clip.Playback = AnimationPlaybackType::PlayLoop;
+		};
 
-			while (animation.FrameTimer >= frameDuration)
-			{
-				animation.FrameTimer -= frameDuration;
-				animation.Frame = (animation.Frame + 1) % 2;
-			}
-		}
-		else
-		{
-			animation.Frame = 0;
-			animation.FrameTimer = 0.0f;
-		}
+		// Idle Animations
+		SetClip(PlayerAnimationSpriteID::IdleDown,  {SpriteFrame{.Column = 0, .Row = 0}});
+		SetClip(PlayerAnimationSpriteID::IdleRight, {SpriteFrame{.Column = 0, .Row = 1}});
+		SetClip(PlayerAnimationSpriteID::IdleLeft,  {SpriteFrame{.Column = 0, .Row = 2}});
+		SetClip(PlayerAnimationSpriteID::IdleUp,    {SpriteFrame{.Column = 0, .Row = 3}});
+
+		// Walking Animations
+		SetClip(PlayerAnimationSpriteID::WalkDown,  {SpriteFrame{.Column = 0, .Row = 0}, SpriteFrame{.Column = 1, .Row = 0}});
+		SetClip(PlayerAnimationSpriteID::WalkRight, {SpriteFrame{.Column = 0, .Row = 1}, SpriteFrame{.Column = 1, .Row = 1}});
+		SetClip(PlayerAnimationSpriteID::WalkLeft,  {SpriteFrame{.Column = 0, .Row = 2}, SpriteFrame{.Column = 1, .Row = 2}});
+		SetClip(PlayerAnimationSpriteID::WalkUp,    {SpriteFrame{.Column = 0, .Row = 3}, SpriteFrame{.Column = 1, .Row = 3}});
 	}
 
+	const AnimationClip& RenderManager::SelectPlayerAnimation(const PlayerState& state) const
+	{
+		const bool moving = state.Locomotion == PlayerLocomotion::Moving;
+
+		PlayerAnimationSpriteID animationID = PlayerAnimationSpriteID::IdleDown;
+
+		switch (state.Direction)
+		{
+			case PlayerDirection::Down:
+			{
+				animationID = moving ? PlayerAnimationSpriteID::WalkDown : PlayerAnimationSpriteID::IdleDown;
+				break;
+			}
+			case PlayerDirection::Right:
+			{
+				animationID = moving ? PlayerAnimationSpriteID::WalkRight : PlayerAnimationSpriteID::IdleRight;
+				break;
+			}
+			case PlayerDirection::Left:
+			{
+				animationID = moving ? PlayerAnimationSpriteID::WalkLeft : PlayerAnimationSpriteID::IdleLeft;
+				break;
+			}
+			case PlayerDirection::Up:
+			{
+				animationID = moving ? PlayerAnimationSpriteID::WalkUp : PlayerAnimationSpriteID::IdleUp;
+				break;
+			}
+		}
+
+		return m_playerAnimationClips[ToIndex(animationID)];
+	}
 
 } // namespace pldn

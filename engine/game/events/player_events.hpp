@@ -5,6 +5,7 @@
 
 // Engine includes
 #include "network/data/network_types.hpp"
+#include "game/replicated/player_state.hpp"
 
 namespace pldn
 {
@@ -29,6 +30,9 @@ namespace pldn
 
         float PositionX = 0.0f;
         float PositionY = 0.0f;
+
+        PlayerDirection Direction = PlayerDirection::Down;
+        PlayerLocomotion Locomotion = PlayerLocomotion::Idle;
     };
 
 }

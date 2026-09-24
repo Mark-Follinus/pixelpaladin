@@ -6,8 +6,6 @@
 #include <optional>
 
 // Engine includes
-//#include "network/data/network_types.hpp"
-//#include "network/data/network_config.hpp"
 #include "network/windows/connection/connection_windows.hpp"
 #include "game/constants/game_constants.hpp"
 #include "game/replicated/player_state.hpp"
@@ -15,18 +13,18 @@
 // Engine event & command includes
 #include "input/commands/input_command.hpp"
 #include "network/events/connection_events.hpp"
+#include "game/entities/player_character.hpp"
 #include "game/events/game_event.hpp"
-
 
 namespace pldn
 {
 	class GameWorldAuthoritative
 	{
-		struct PlayerStateAuthoritative
-		{
-			PlayerState State = {};
-			InputCommand CurrentInput = {};
-		};
+		//struct PlayerStateAuthoritative
+		//{
+		//	PlayerState State = {};
+		//	InputCommand CurrentInput = {};
+		//};
 
 	public:
 		void Update(const float deltaTime);
@@ -34,7 +32,7 @@ namespace pldn
 		void QueueConnectionChange(ClientConnectionChangeEvent event);
 		void QueueInputCommand(ClientInputCommand command);
 
-		bool PollGameEvent(GameEvent& command);
+		bool PollGameEvent(GameEvent& event);
 
 	private:
 		GameWorldAuthoritative();
@@ -56,7 +54,8 @@ namespace pldn
 		friend class Engine;
 		friend class ServerEngine;
 
-		std::array<std::optional<PlayerStateAuthoritative>, MAX_PLAYERS_ALLOWED> m_players = {};
+		std::array<std::optional<PlayerCharacter>, MAX_PLAYERS_ALLOWED> m_players = {};
+		std::array<InputCommand, MAX_PLAYERS_ALLOWED> m_currentInputs = {};
 
 		std::queue<ClientConnectionChangeEvent> m_incomingConnectionEvents = {};
 		std::queue<ClientInputCommand> m_incomingInputCommands = {};

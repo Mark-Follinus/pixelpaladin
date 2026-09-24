@@ -8,7 +8,7 @@
 // Engine includes
 #include "game/constants/game_constants.hpp"
 #include "game/events/game_event.hpp"
-#include "game/replicated/player_state.hpp"
+#include "game/entities/player_character.hpp"
 
 namespace pldn
 {
@@ -18,7 +18,7 @@ namespace pldn
 	public:
 		void Update(const float /* deltaTime */);
 		void QueueGameEvent(GameEvent command);
-		const std::array<std::optional<PlayerState>, MAX_PLAYERS_ALLOWED>& GetPlayers() const { return m_players; }
+		const std::array<std::optional<PlayerCharacter>, MAX_PLAYERS_ALLOWED>& GetPlayers() const { return m_players; }
 
 	private:
 		GameWorldReplicated() = default;
@@ -32,7 +32,7 @@ namespace pldn
 		friend class Engine;
 		friend class ClientEngine;
 
-		std::array<std::optional<PlayerState>, MAX_PLAYERS_ALLOWED> m_players = {};
+		std::array<std::optional<PlayerCharacter>, MAX_PLAYERS_ALLOWED> m_players = {};
 
 		std::queue<GameEvent> m_incomingGameEvents = {};
 	};

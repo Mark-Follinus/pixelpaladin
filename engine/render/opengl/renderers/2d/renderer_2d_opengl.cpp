@@ -10,7 +10,7 @@
 // Engine includes
 #include "render/opengl/textures/texture_2d.hpp"
 
-#include "render/opengl/data/sprite_2d.hpp"
+#include "render/sprites/sprite_2d.hpp"
 #include "game/components/world_transform_2d.hpp"
 
 namespace pldn
@@ -88,7 +88,7 @@ namespace pldn
 		glBindVertexArray(0);
 	}
 
-	void Renderer2D::DrawSprite(const Texture2D& texture, const SpriteTransform& spriteTransform, const WorldTransform2D& transform)
+	void Renderer2D::DrawSprite(const Texture2D& texture, const Sprite2D& spriteTransform, const WorldTransform2D& transform)
 	{
 		glm::mat4 model{ 1.0f };
 		model = glm::translate(model, glm::vec3(transform.Position, 0.0f));

@@ -36,14 +36,14 @@ namespace pldn
 		m_incomingInputCommands.push(std::move(command));
 	}
 
-	bool GameWorldAuthoritative::PollGameEvent(GameEvent& command)
+	bool GameWorldAuthoritative::PollGameEvent(GameEvent& event)
 	{
 		if (m_outgoingGameEvents.empty())
 		{
 			return false;
 		}
 
-		command = std::move(m_outgoingGameEvents.front());
+		event = std::move(m_outgoingGameEvents.front());
 
 		m_outgoingGameEvents.pop();
 		return true;
@@ -105,25 +105,23 @@ namespace pldn
 		while (!m_incomingInputCommands.empty())
 		{
 			ClientInputCommand incoming = std::move(m_incomingInputCommands.front());
-
 			m_incomingInputCommands.pop();
 
 			const ClientID clientID = incoming.ClientID;
-
 			if (clientID < 0 || static_cast<std::size_t>(clientID) >= m_players.size())
 			{
 				continue;
 			}
 
-			std::optional<PlayerStateAuthoritative>& slot = m_players[static_cast<std::size_t>(clientID)];
+			const std::size_t playerIndex = static_cast<std::size_t>(clientID);
+			std::optional<PlayerCharacter>& playerSlot = m_players[playerIndex];
 
-			if (!slot.has_value())
+			if (!playerSlot.has_value())
 			{
-				// Stale input from a disconnected client, or input received before joining completed.
 				continue;
 			}
 
-			PlayerStateAuthoritative& player = *slot;
+			PlayerCharacter& player = *playerSlot;
 			const InputCommand& command = incoming.Command;
 
 			if (command.SequenceNumber <= player.State.LastProcessedInputSequence)
@@ -132,37 +130,51 @@ namespace pldn
 			}
 
 			player.State.LastProcessedInputSequence = command.SequenceNumber;
-			player.CurrentInput = command;
+			m_currentInputs[playerIndex] = command;
 		}
 	}
 
 	void GameWorldAuthoritative::MovePlayers(const float deltaTime)
 	{
-		for (std::optional<PlayerStateAuthoritative>& playerSlot : m_players)
+		for (std::size_t i = 0; i < m_players.size(); ++i)
 		{
-			if (!playerSlot.has_value())
+			if (!m_players[i].has_value())
 			{
 				continue;
 			}
 
-			PlayerStateAuthoritative& player = *playerSlot;
+			PlayerCharacter& player = *m_players[i];
+			const InputCommand& input = m_currentInputs[i];
 
-			glm::vec2 direction
-			{ 
-				static_cast<float>(player.CurrentInput.MoveX) / 127.0f, 
-				static_cast<float>(player.CurrentInput.MoveY) / 127.0f
+			glm::vec2 movementInput
+			{
+				static_cast<float>(input.MoveX) / 127.0f,
+				static_cast<float>(input.MoveY) / 127.0f
 			};
 
-			if (glm::dot(direction, direction) > 1.0f)
+			if (glm::dot(movementInput, movementInput) > 1.0f)
 			{
-				direction = glm::normalize(direction);
+				movementInput = glm::normalize(movementInput);
 			}
 
-			player.State.Velocity = direction * MAX_PLAYER_SPEED;
-			player.State.Transform.Position += player.State.Velocity * deltaTime;
+			const bool isMoving = movementInput.x != 0.0f || movementInput.y != 0.0f;
 
-			player.CurrentInput.ActionsDown = 0;
-			player.CurrentInput.ActionsUp = 0;
+			player.State.Locomotion = isMoving ? PlayerLocomotion::Moving : PlayerLocomotion::Idle;
+
+			// Preserve the last direction while idle.
+			if (isMoving)
+			{
+				if (std::abs(movementInput.x) > std::abs(movementInput.y))
+				{
+					player.State.Direction = movementInput.x > 0.0f ? PlayerDirection::Right : PlayerDirection::Left;
+				}
+				else
+				{
+					player.State.Direction = movementInput.y > 0.0f ? PlayerDirection::Up : PlayerDirection::Down;
+				}
+			}
+
+			player.State.Transform.Position += movementInput * MAX_PLAYER_SPEED * deltaTime;
 		}
 	}
 
@@ -201,6 +213,8 @@ namespace pldn
 		}
 
 		playerSlot.reset();
+		m_currentInputs[static_cast<std::size_t>(id)] = {};
+
 		return true;
 	}
 
@@ -234,7 +248,7 @@ namespace pldn
 
 	void GameWorldAuthoritative::GeneratePlayerStateGameEvents()
 	{
-		for (const std::optional<PlayerStateAuthoritative>& playerSlot : m_players)
+		for (const std::optional<PlayerCharacter>& playerSlot : m_players)
 		{
 			if (!playerSlot.has_value())
 			{
@@ -248,6 +262,8 @@ namespace pldn
 				event.ServerTick = m_serverTick;
 				event.PositionX = player.Transform.Position.x;
 				event.PositionY = player.Transform.Position.y;
+				event.Direction = player.Direction;
+				event.Locomotion = player.Locomotion;
 
 			m_outgoingGameEvents.push(GameEvent{event});
 		}

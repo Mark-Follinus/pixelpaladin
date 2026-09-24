@@ -4,12 +4,12 @@
 #include "render/opengl/shaders/shader.hpp"
 
 // Engine includes
-#include "render/opengl/camera/camera_2d.hpp"
+#include "render/camera/camera_2d.hpp"
 
 namespace pldn
 {
 	// Forward declarations
-	struct SpriteTransform;
+	struct Sprite2D;
 	struct WorldTransform2D;
 	class Texture2D;
 
@@ -28,7 +28,7 @@ namespace pldn
 
 		bool IsInitialized() const;
 		void DrawQuad(const glm::vec2& position, const glm::vec2& scale, const float rotation);
-		void DrawSprite(const Texture2D& texture, const SpriteTransform& spriteTransform, const WorldTransform2D& transform);
+		void DrawSprite(const Texture2D& texture, const Sprite2D& spriteTransform, const WorldTransform2D& transform);
 
 	private:
 

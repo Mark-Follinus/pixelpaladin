@@ -63,7 +63,7 @@ namespace pldn
 
 		const std::size_t playerIndex = static_cast<std::size_t>(event.ID);
 		
-		std::optional<PlayerState>& playerSlot = m_players[playerIndex];
+		std::optional<PlayerCharacter>& playerSlot = m_players[playerIndex];
 
 		if (!playerSlot.has_value())
 		{
@@ -71,7 +71,9 @@ namespace pldn
 			return;
 		}
 
-		playerSlot->Transform.Position = { event.PositionX, event.PositionY };
+		playerSlot->State.Transform.Position = { event.PositionX, event.PositionY };
+		playerSlot->State.Direction = event.Direction;
+		playerSlot->State.Locomotion = event.Locomotion;
 	}
 
 	void GameWorldReplicated::ApplyPlayerJoinedEvent(const PlayerJoinedEvent& event)
@@ -90,8 +92,8 @@ namespace pldn
 		}
 
 		playerSlot.emplace();
-		playerSlot->ID = event.ID;
-		playerSlot->Transform.Position = { event.PositionX, event.PositionY };
+		playerSlot->State.ID = event.ID;
+		playerSlot->State.Transform.Position = { event.PositionX, event.PositionY };
 	}
 
 	void GameWorldReplicated::ApplyPlayerDisconnectEvent(const PlayerDisconnectEvent& event)

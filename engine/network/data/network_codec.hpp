@@ -122,6 +122,8 @@ namespace pldn
                     byteWriter.WriteUInt(concreteEvent.ServerTick);
                     byteWriter.WriteFloat(concreteEvent.PositionX);
                     byteWriter.WriteFloat(concreteEvent.PositionY);
+                    byteWriter.WriteUInt(static_cast<std::uint8_t>(concreteEvent.Direction));
+                    byteWriter.WriteUInt(static_cast<std::uint8_t>(concreteEvent.Locomotion));
                 }
                 else
                 {
@@ -188,23 +190,34 @@ namespace pldn
                 eventDecoded = eventLeft;
                 break;
             }
-
             case GameEventType::PlayerState:
             {
                 PlayerStateEvent eventPlayerState{};
+                std::uint8_t encodedDirection = 0;
+                std::uint8_t encodedLocomotion = 0;
 
                 if (!ReadClientID(byteReader, eventPlayerState.ID) 
                     || !byteReader.ReadUInt(eventPlayerState.ServerTick) 
                     || !byteReader.ReadFloat(eventPlayerState.PositionX) 
-                    || !byteReader.ReadFloat(eventPlayerState.PositionY))
+                    || !byteReader.ReadFloat(eventPlayerState.PositionY)
+                    || !byteReader.ReadUInt(encodedDirection)
+                    || !byteReader.ReadUInt(encodedLocomotion))
                 {
                     return false;
                 }
 
+                if (encodedDirection > static_cast<std::uint8_t>(PlayerDirection::Up) 
+                    || encodedLocomotion > static_cast<std::uint8_t>(PlayerLocomotion::Moving))
+                {
+                    return false;
+                }
+
+                eventPlayerState.Direction = static_cast<PlayerDirection>(encodedDirection);
+                eventPlayerState.Locomotion = static_cast<PlayerLocomotion>(encodedLocomotion);
+
                 eventDecoded = eventPlayerState;
                 break;
             }
-
             default:
             {
                 // Unknown event type.

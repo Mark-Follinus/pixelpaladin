@@ -10,7 +10,7 @@ namespace pldn
 {
     using TextureID = unsigned int;
 
-    struct SpriteTransform
+    struct Sprite2D
     {
         glm::vec2 PositionOffset{ 0.0f, 0.0f };
         glm::vec2 Scale{ 1.0f, 1.0f };
