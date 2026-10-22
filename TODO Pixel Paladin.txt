@@ -1,9 +1,9 @@
 TODO: Pixel Paladin
 
 HIGH PRIORITY
-> Create an ECS system, and a scene representation.
-> Create an asset management system.
-> Switch to C++23, Add CMAKE files.
+> TODO: Create an ECS system, and a scene representation.
+> TODO: Create an asset management system.
+> TODO: Switch to C++23, Add CMAKE files.
 
 INPUT
 > TODO: Revisit gamepad input after networking prototype is functional.
@@ -12,7 +12,7 @@ INPUT
 > TODO: Add Input mappings, probably read from a text file.
 
 NETWORK
-> TODO: Current serialization uses very slow method for encoding. Update to C++23, and use std::byteswap.
+> TODO: Current network serialization uses very slow method for encoding. Update to C++23, and use std::byteswap.
 > TODO: Figure out how to handle input queues so they don't just keep expanded forever.
 > TODO: Add Client connect, client disconnect events. 
 > TODO: Eventually expend the game event to use std::variant. Currently it is a stand in for player state.
@@ -27,3 +27,6 @@ RENDERING
 
 STANDALONE ENGINE
 > Eventually do a feature catch up.
+
+a minor hiccup, in the company portal it says that my pc cannot access company resources because it does not meet compliance and security policy. 
+

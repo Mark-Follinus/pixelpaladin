@@ -1,4 +1,6 @@
-#define PLDN_BUILD_MODE 1
+#ifndef PLDN_BUILD_MODE
+#error PLDN_BUILD_MODE must be supplied by the build configuration
+#endif
 
 #if PLDN_BUILD_MODE == 0
 #include "core/standalone/engine.hpp"

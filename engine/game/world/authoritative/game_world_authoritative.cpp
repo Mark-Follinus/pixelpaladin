@@ -7,7 +7,7 @@ namespace pldn
 {
 
 // ------------------------
-// Public Methods
+// Public Methods          
 // ------------------------
 
 	void GameWorldAuthoritative::Update(const float deltaTime)
@@ -268,6 +268,5 @@ namespace pldn
 			m_outgoingGameEvents.push(GameEvent{event});
 		}
 	}
-
 
 } // namespace pldn

@@ -59,3 +59,12 @@
 *.json
 
 .vs/pixel-paladin/v17/fileList.bin
+
+# Build output and local IDE settings
+/out/
+/x64/
+/.vs/
+/CMakeUserPresets.json
+
+# Old manually copied GLFW source
+/external/source/glfw/
