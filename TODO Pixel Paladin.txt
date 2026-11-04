@@ -3,7 +3,6 @@ TODO: Pixel Paladin
 HIGH PRIORITY
 > TODO: Create an ECS system, and a scene representation.
 > TODO: Create an asset management system.
-> TODO: Switch to C++23, Add CMAKE files.
 
 INPUT
 > TODO: Revisit gamepad input after networking prototype is functional.
@@ -15,7 +14,6 @@ NETWORK
 > TODO: Current network serialization uses very slow method for encoding. Update to C++23, and use std::byteswap.
 > TODO: Figure out how to handle input queues so they don't just keep expanded forever.
 > TODO: Add Client connect, client disconnect events. 
-> TODO: Eventually expend the game event to use std::variant. Currently it is a stand in for player state.
 
 RENDERING + DEVICE
 > TODO: Allow dynamic resizing of the window inside device. Making sure that the renderer also is resized.
@@ -28,5 +26,24 @@ RENDERING
 STANDALONE ENGINE
 > Eventually do a feature catch up.
 
-a minor hiccup, in the company portal it says that my pc cannot access company resources because it does not meet compliance and security policy. 
+PLAN
+[Short Term]
+> "Playable Match"
+> EnTT integration, basic world lifecycle, authoritative game rules, complete match flow
+> Adding basic AABB collision, and by extension some sort of green shell kicking.
 
+[Medium Term]
+> "Automated Tests"
+> Tests for packet encoding, stream framing, turn rules, and entity lifecycle; CI builds
+
+[Long Term]
+> "Linux support"
+> Portable networking and platform interfaces; Windows/Linux build.
+
+[Longer Term]
+> "Concurrency"
+> Consider moving the rendering, and or networking onto a separate thread. Then have a ring buffer or some shit to exchange data.
+
+[Longest Term]
+> "Build and delivery"
+> Build presets, configuration matrix, packaged client/server artifacts.
