@@ -1,7 +1,7 @@
 #pragma once
 
 // GLM includes
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 namespace pldn
 {

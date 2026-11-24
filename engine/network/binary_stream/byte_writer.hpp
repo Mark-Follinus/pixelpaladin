@@ -24,13 +24,13 @@ namespace pldn
 		{
 			static_assert(CHAR_BIT == 8);
 
-			// Big-endian ordering. Stolen from the internet.
-			for (std::size_t i = sizeof(T); i > 0; i--) 
+			if constexpr (std::endian::native == std::endian::little)
 			{
-				const std::size_t shift = (i - 1) * 8;
-				const auto byte = static_cast<std::uint8_t>((value >> shift) & static_cast<T>(0xFF));
-				m_bytes.push_back(static_cast<std::byte>(byte));
+				value = std::byteswap(value);
 			}
+
+			const auto bytes = std::as_bytes(std::span{ &value, 1 });
+			m_bytes.insert(m_bytes.end(), bytes.begin(), bytes.end());
 		}
 
 		template <std::signed_integral T>

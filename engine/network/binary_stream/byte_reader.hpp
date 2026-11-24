@@ -27,17 +27,13 @@ namespace pldn
                 return false;
             }
 
-            T result = 0;
-
-            for (std::size_t i = 0; i < sizeof(T); ++i)
-            {
-                const auto byte = std::to_integer<std::uint8_t>(m_bytes[m_offset + i]);
-
-                result = static_cast<T>((result << 8) | static_cast<T>(byte));
-            }
-
+            std::memcpy(&value, m_bytes.data() + m_offset, sizeof(T));
             m_offset += sizeof(T);
-            value = result;
+
+            if constexpr (std::endian::native == std::endian::little)
+            {
+                value = std::byteswap(value);
+            }
 
             return true;
         }
